@@ -17,7 +17,12 @@ in
 			#nixfile = "/default.nix";
 			attribute = "gohello";
 			# buildInputs = [pkgs.ssh];
-			post = ''echo that was it!. See $out'';
+			post = ''
+				echo that was it!.
+				echo pwd: $(pwd)
+				echo readlink: $(readlink -f ./result/)
+				echo result: $(ls ./result/)
+			'';
 		}
 		{
 			id = "hello2";

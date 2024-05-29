@@ -8,7 +8,7 @@ import (
 
 type (
 	Config struct {
-		Projects []Project
+		Projects []Project `json:"projects"`
 	}
 
 	Project struct {
@@ -21,15 +21,16 @@ type (
 )
 
 func ReadConfig(f string) (*Config, error) {
-	nix := fmt.Sprintf("with import %s; builtins.toJSON projects", f)
-	cmd := exec.Command("nix-instantiate", "--eval", "-E", nix)
+	// nix := fmt.Sprintf("with import %s; builtins.toJSON projects", f)
+	// cmd := exec.Command("nix-instantiate", "--eval", "-E", nix)
+	cmd := exec.Command("nix-instantiate", "--eval", "--strict", "--json", f)
+	fmt.Printf("running: %s\n", cmd.String())
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, err
 	}
-	var pr []Project
-	if err := json.Unmarshal(out, &pr); err != nil {
-		return nil, err
-	}
-	return &Config{Projects: pr}, nil
+	fmt.Printf("config json: %s\n", out)
+
+	var c Config
+	return &c, json.Unmarshal(out, &c)
 }
