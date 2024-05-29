@@ -1,0 +1,30 @@
+let
+  # sources = import ./build/default.nix;
+  # pkgs = import sources.nixpkgs { };
+  repo = "ssh://git@github.com/alicebob/gohello";
+in
+{
+	users = {
+		alice = {};
+		bob = {};
+		eve = {};
+	};
+	projects = [
+		{
+			id = "hello";
+			name = "Hello!";
+			git = repo;
+			#nixfile = "/default.nix";
+			attribute = "gohello";
+			# buildInputs = [pkgs.ssh];
+			post = ''echo that was it!. See $out'';
+		}
+		{
+			id = "hello2";
+			name = "Hello again!";
+			git = repo;
+			attribute = "gohello";
+			post = ''Same thing just to have more projects'';
+		}
+	];
+}
