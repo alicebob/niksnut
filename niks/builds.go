@@ -5,17 +5,15 @@ import (
 	"sort"
 )
 
-func validBuildDir(id string) bool {
-	root := buildsDir // FIXME
-	p := root + id + "/status.json"
+func validBuildDir(buildsDir, id string) bool {
+	p := buildsDir + id + "/status.json"
 	_, err := os.ReadFile(p)
 	return err == nil
 }
 
 // Lists build (dirs), ordered latest first. Dirs without status.json are ignored.
-func ListBuilds() ([]Build, error) {
-	root := buildsDir // FIXME
-	ls, err := os.ReadDir(root)
+func ListBuilds(buildsDir string) ([]Build, error) {
+	ls, err := os.ReadDir(buildsDir)
 	if err != nil {
 		return nil, err
 	}
@@ -26,10 +24,10 @@ func ListBuilds() ([]Build, error) {
 			continue
 		}
 		id := l.Name()
-		if !validBuildDir(id) {
+		if !validBuildDir(buildsDir, id) {
 			continue
 		}
-		p := root + id
+		p := buildsDir + id
 		bs = append(bs, Build{
 			ID:   l.Name(),
 			Path: p,

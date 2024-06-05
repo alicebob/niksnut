@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/alicebob/niksnut/httpd"
@@ -12,7 +13,8 @@ import (
 )
 
 var (
-	defaultListen = "localhost:3141"
+	defaultListen    = "localhost:3141"
+	defaultBuildsDir = "./builds/"
 )
 
 func main() {
@@ -21,7 +23,10 @@ func main() {
 	// slog.Info("hello.")
 
 	if cli.command == "help" {
-		fmt.Printf("usage: niksnut [--help] [--version] [--configfile=./config.nix] [--version] <command> [--help] [<args>]\n")
+		fmt.Printf(`usage: niksnut [--help] [--version] [--buildsdir=%s]
+	       [--configfile=./config.nix]
+	       <command> [--help] [<args>]
+`, defaultBuildsDir)
 		fmt.Printf("   niksnut help -- same as `niksnut --help`\n")
 		fmt.Printf("   niksnut version -- same as `niksnut --version`\n")
 		fmt.Printf("   niksnut check\n")
@@ -57,7 +62,7 @@ func main() {
 			fmt.Printf("usage: niksnut run <projectid> [<git branch>]\n")
 			return
 		}
-		cliRun(config, cli.runProject)
+		cliRun(cli.buildsDir, config, cli.runProject)
 	case "httpd":
 		if cli.help {
 			fmt.Printf("usage: niksnut httpd [--listen=%s]\n", defaultListen)
@@ -65,9 +70,10 @@ func main() {
 		}
 
 		s := &httpd.Server{
-			Addr:   cli.httpdListen,
-			Root:   os.DirFS("./httpd/"), // FIXME
-			Config: *config,
+			BuildsDir: cli.buildsDir,
+			Root:      os.DirFS("./httpd/"), // FIXME
+			Config:    *config,
+			Addr:      cli.httpdListen,
 		}
 
 		fmt.Printf("starting httpd on %s\n", s.Addr)
@@ -87,6 +93,7 @@ func main() {
 
 type cliFlags struct {
 	configFile  string
+	buildsDir   string
 	command     string
 	httpdListen string
 	runProject  string
@@ -102,6 +109,7 @@ func parseFlags() *cliFlags {
 
 	f := &flag.FlagSet{}
 	f.StringVar(&fl.configFile, "config", "./config.nix", "config file (.nix)")
+	f.StringVar(&fl.buildsDir, "buildsdir", defaultBuildsDir, "builds directory")
 	f.BoolVar(&fl.help, "help", false, "run help")
 	f.BoolVar(&fl.version, "version", false, "show version")
 	if err := f.Parse(args); err != nil {
@@ -155,15 +163,19 @@ func parseFlags() *cliFlags {
 		fl.command = "help"
 	}
 
+	if !strings.HasSuffix(fl.buildsDir, "/") {
+		fl.buildsDir += "/"
+	}
+
 	return fl
 }
 
-func cliRun(config *niks.Config, projectID string) {
+func cliRun(buildsDir string, config *niks.Config, projectID string) {
 	fmt.Printf("run of %s:\n", projectID)
 	// fixme all
 	p := config.Projects[0]
 	branch := "main"
-	build, err := niks.SetupBuild(p)
+	build, err := niks.SetupBuild(buildsDir, p)
 	if err != nil {
 		fmt.Printf("error setting up build %s: %s\n", p.ID, err)
 		os.Exit(1)

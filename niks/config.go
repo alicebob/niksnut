@@ -2,7 +2,6 @@ package niks
 
 import (
 	"encoding/json"
-	"fmt"
 	"os/exec"
 )
 
@@ -23,13 +22,13 @@ type (
 func ReadConfig(f string) (*Config, error) {
 	// nix := fmt.Sprintf("with import %s; builtins.toJSON projects", f)
 	// cmd := exec.Command("nix-instantiate", "--eval", "-E", nix)
-	cmd := exec.Command("nix-instantiate", "--eval", "--strict", "--json", f)
-	fmt.Printf("running: %s\n", cmd.String())
+	cmd := exec.Command(cmdNixInstantiate, "--eval", "--strict", "--json", f)
+	// fmt.Printf("running: %s\n", cmd.String())
 	out, err := cmd.Output()
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("config json: %s\n", out)
+	// fmt.Printf("config json: %s\n", out)
 
 	var c Config
 	return &c, json.Unmarshal(out, &c)

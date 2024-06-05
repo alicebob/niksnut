@@ -23,9 +23,6 @@ type (
 	}
 )
 
-var buildsDir = "./builds/" // obvs should be a var
-var git = "git"             //  path, fixme
-
 // this can be ordered alphabetically, and looks nice in URLs (no escaped chars)
 func genID(t time.Time, projID string) string {
 	return fmt.Sprintf("%s_%s", t.Format("20060102T150405"), projID)
@@ -33,7 +30,7 @@ func genID(t time.Time, projID string) string {
 
 // Create build ID + mkdir. This should be enough to report "in progress" in a UI.
 // Use Run() after this.
-func SetupBuild(p Project) (*Build, error) {
+func SetupBuild(buildsDir string, p Project) (*Build, error) {
 	t := time.Now().UTC()
 	id := genID(t, p.ID)
 	path := buildsDir + id + "/"
@@ -57,8 +54,8 @@ func SetupBuild(p Project) (*Build, error) {
 	return b, nil
 }
 
-func LoadBuild(id string) (*Build, error) {
-	if !validBuildDir(id) {
+func LoadBuild(buildsDir string, id string) (*Build, error) {
+	if !validBuildDir(buildsDir, id) {
 		return nil, errors.New("build not found")
 	}
 
@@ -71,7 +68,6 @@ func LoadBuild(id string) (*Build, error) {
 func (b *Build) Status() Status {
 	var s Status
 	bytes, err := os.ReadFile(b.Path + "status.json")
-	fmt.Printf("read %s %s\n", bytes, err)
 	if err != nil {
 		return s
 	}
@@ -122,7 +118,7 @@ func (b *Build) Run(p Project, branch string) error {
 	defer stdout.Close()
 
 	{
-		clone := exec.Command(git, "clone", "--depth", "1", "--branch", branch, p.Git, work)
+		clone := exec.Command(cmdGit, "clone", "--depth", "1", "--branch", branch, p.Git, work)
 		out, err := clone.Output()
 		if err != nil {
 			return err
@@ -131,7 +127,7 @@ func (b *Build) Run(p Project, branch string) error {
 	}
 
 	{
-		build := exec.Command("nix-build", "-A", p.Attribute)
+		build := exec.Command(cmdNixBuild, "-A", p.Attribute)
 		fmt.Fprintf(stdout, "$ "+build.String()+"\n")
 		build.Dir = work
 		build.Stdout = stdout
@@ -143,7 +139,7 @@ func (b *Build) Run(p Project, branch string) error {
 	}
 
 	if p.Post != "" {
-		post := exec.Command("bash", "-c", p.Post)
+		post := exec.Command(cmdBash, "-c", p.Post)
 		fmt.Fprintf(stdout, "$ "+post.String()+"\n")
 		post.Dir = work
 		post.Stdout = stdout

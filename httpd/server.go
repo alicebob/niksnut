@@ -9,9 +9,10 @@ import (
 )
 
 type Server struct {
-	Addr   string
-	Root   fs.FS
-	Config niks.Config
+	Addr      string
+	BuildsDir string
+	Root      fs.FS
+	Config    niks.Config
 }
 
 func (s *Server) Run() error {

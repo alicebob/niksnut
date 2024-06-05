@@ -36,7 +36,7 @@ func (s *Server) build(ctx context.Context, r *http.Request, args *buildArgs) er
 	args.Page = r.FormValue("page")
 
 	if args.Page == "build" {
-		build, err := niks.SetupBuild(args.Project)
+		build, err := niks.SetupBuild(s.BuildsDir, args.Project)
 		if err != nil {
 			return nil
 		}

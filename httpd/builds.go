@@ -28,7 +28,7 @@ func (s *Server) hndBuilds(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) builds(ctx context.Context, r *http.Request, args *buildsArgs) error {
 	id := r.FormValue("buildid")
-	build, err := niks.LoadBuild(id)
+	build, err := niks.LoadBuild(s.BuildsDir, id)
 	if err != nil {
 		return err
 	}

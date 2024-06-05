@@ -25,7 +25,7 @@ func (s *Server) hndIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) index(ctx context.Context, args *indexArgs) error {
-	ls, err := niks.ListBuilds()
+	ls, err := niks.ListBuilds(s.BuildsDir)
 	if err != nil {
 		return err
 	}
