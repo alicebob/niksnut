@@ -28,6 +28,19 @@ func (s *Server) Run() error {
 
 func (s *Server) Mux() *http.ServeMux {
 	m := http.NewServeMux()
-	m.HandleFunc("GET /", s.hndIndex)
+	m.HandleFunc("GET /{$}", s.hndIndex)
+	m.HandleFunc("GET /build", s.hndBuild)
+	m.HandleFunc("POST /build", s.hndBuild)
 	return m
+}
+
+// helper to load project by an ID in handlers
+func (s *Server) loadProject(id string, to *niks.Project) error {
+	for _, p := range s.Config.Projects {
+		if p.ID == id {
+			*to = p
+			return nil
+		}
+	}
+	return errors.New("no such project")
 }

@@ -4,6 +4,6 @@ hello template!<br />
 
 Projects:<br />
 	{{range .Config.Projects}}
-		- {{.ID}}: {{.Name}}<br />
+		- {{.ID}} - <a href="./build?projid={{.ID}}">build</a>: {{.Name}}<br />
 	{{end}}
 {{end}}

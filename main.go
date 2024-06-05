@@ -162,11 +162,17 @@ func cliRun(config *niks.Config, projectID string) {
 	fmt.Printf("run of %s:\n", projectID)
 	// fixme all
 	p := config.Projects[0]
-	out, err := Run(p)
+	branch := "main"
+	build, err := niks.SetupBuild(p)
 	if err != nil {
+		fmt.Printf("error setting up build %s: %s\n", p.ID, err)
+		os.Exit(1)
+	}
+	if err := build.Run(p, branch); err != nil {
 		fmt.Printf("error running %s: %s\n", p.ID, err)
 		os.Exit(1)
 	}
 	fmt.Printf("run of %s:\n", p.ID)
-	fmt.Print(out.Stdout)
+
+	fmt.Print(build.Stdout())
 }

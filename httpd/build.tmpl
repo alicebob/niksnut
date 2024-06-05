@@ -1,0 +1,23 @@
+{{define "title"}}build todo{{end}}
+{{define "main"}}
+build!<br />
+
+{{showerror .Error}}
+
+{{if .ProjID}}
+	{{if eq .Page "build"}}
+		Building: {{.BuildID}}!<br />
+		<br />
+		<a href="./">back</a>	
+	{{else}}
+		Project: {{.Project.Name}}<br />
+		<form method="POST" action="./build">
+		<input type="hidden" name="projid" value="{{.ProjID}}" />
+		<fieldset>
+			{{radio "branch" "main" $.Branch "main"}}<br />
+		</fieldset>
+		<button name="page" value="build">Build!</a>
+		</form>
+	{{end}}
+{{end}}
+{{end}}
