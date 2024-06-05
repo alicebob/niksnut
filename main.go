@@ -4,18 +4,27 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/alicebob/niksnut/httpd"
+)
+
+var (
+	defaultListen = "localhost:3141"
 )
 
 func main() {
-	fmt.Printf("hello.\n")
 	cli := parseFlags()
+	// slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, nil)))
+	// slog.Info("hello.")
 
 	if cli.command == "help" {
 		fmt.Printf("usage: niksnut [--help] [--version] [--configfile=./config.nix] [--version] <command> [--help] [<args>]\n")
 		fmt.Printf("   niksnut help -- same as `niksnut --help`\n")
 		fmt.Printf("   niksnut version -- same as `niksnut --version`\n")
 		fmt.Printf("   niksnut check\n")
-		fmt.Printf("   niksnut httpd [--listen=localhost:3141]\n")
+		fmt.Printf("   niksnut httpd [--listen=%s]\n", defaultListen)
 		fmt.Printf("   niksnut run <projectname> [<git branch>]\n")
 		return
 	}
@@ -50,10 +59,27 @@ func main() {
 		cliRun(config, cli.runProject)
 	case "httpd":
 		if cli.help {
-			fmt.Printf("usage: niksnut httpd [--listen=127.0.0.1:3141]\n")
+			fmt.Printf("usage: niksnut httpd [--listen=%s]\n", defaultListen)
 			return
 		}
-		fmt.Printf("here be a httpd on %s\n", cli.httpdListen)
+
+		s := &httpd.Server{
+			Addr: cli.httpdListen,
+			Root: os.DirFS("./httpd/"), // FIXME
+		}
+
+		fmt.Printf("starting httpd on %s\n", s.Addr)
+		go func() {
+			err := s.Run()
+			if err != nil {
+				fmt.Println(err.Error())
+				os.Exit(1)
+			}
+		}()
+		sig := make(chan os.Signal, 1)
+		signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+		<-sig
+
 	}
 }
 
@@ -100,7 +126,7 @@ func parseFlags() *cliFlags {
 	case "httpd":
 		fl.command = "httpd"
 		f := &flag.FlagSet{}
-		f.StringVar(&fl.httpdListen, "listen", "127.0.0.1:3141", "listen")
+		f.StringVar(&fl.httpdListen, "listen", defaultListen, "listen")
 		f.BoolVar(&fl.help, "help", false, "run help")
 		if err := f.Parse(args); err != nil {
 			fl.help = true
