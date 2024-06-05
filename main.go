@@ -1,8 +1,10 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/signal"
 	"strings"
@@ -10,6 +12,11 @@ import (
 
 	"github.com/alicebob/niksnut/httpd"
 	"github.com/alicebob/niksnut/niks"
+)
+
+var (
+	//go:embed static
+	staticRoot embed.FS
 )
 
 var (
@@ -24,7 +31,7 @@ func main() {
 
 	if cli.command == "help" {
 		fmt.Printf(`usage: niksnut [--help] [--version] [--buildsdir=%s]
-	       [--configfile=./config.nix]
+	       [--configfile=./config.nix] [--root=""]
 	       <command> [--help] [<args>]
 `, defaultBuildsDir)
 		fmt.Printf("   niksnut help -- same as `niksnut --help`\n")
@@ -39,10 +46,14 @@ func main() {
 		return
 	}
 
-	config, err := niks.ReadConfig(cli.configFile)
-	if err != nil {
-		fmt.Printf("error reading %s: %s\n", cli.configFile, err)
-		os.Exit(1)
+	var config *niks.Config
+	if !cli.help {
+		c, err := niks.ReadConfig(cli.configFile)
+		if err != nil {
+			fmt.Printf("error reading %s: %s\n", cli.configFile, err)
+			os.Exit(1)
+		}
+		config = c
 	}
 
 	switch cli.command {
@@ -69,9 +80,21 @@ func main() {
 			return
 		}
 
+		// use embedded templates and /static/ files, unless --root set
+		var (
+			root   = fs.FS(httpd.TemplateRoot)
+			static = fs.FS(staticRoot)
+		)
+		if cli.devRoot != "" {
+			fmt.Printf("dev mode because -root is set.\n")
+			root = os.DirFS(cli.devRoot + "/httpd/")
+			static = os.DirFS(cli.devRoot + "/")
+		}
+
 		s := &httpd.Server{
 			BuildsDir: cli.buildsDir,
-			Root:      os.DirFS("./httpd/"), // FIXME
+			Root:      root,
+			Static:    static,
 			Config:    *config,
 			Addr:      cli.httpdListen,
 		}
@@ -94,6 +117,7 @@ func main() {
 type cliFlags struct {
 	configFile  string
 	buildsDir   string
+	devRoot     string
 	command     string
 	httpdListen string
 	runProject  string
@@ -110,6 +134,7 @@ func parseFlags() *cliFlags {
 	f := &flag.FlagSet{}
 	f.StringVar(&fl.configFile, "config", "./config.nix", "config file (.nix)")
 	f.StringVar(&fl.buildsDir, "buildsdir", defaultBuildsDir, "builds directory")
+	f.StringVar(&fl.devRoot, "root", "", "if empty, use embedded templates and /static/ files")
 	f.BoolVar(&fl.help, "help", false, "run help")
 	f.BoolVar(&fl.version, "version", false, "show version")
 	if err := f.Parse(args); err != nil {

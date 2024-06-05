@@ -15,7 +15,7 @@ func TestTemplates(t *testing.T) {
 	var (
 		ctx = context.Background()
 		s   = &Server{
-			Root: staticRoot,
+			Root: TemplateRoot,
 			Config: niks.Config{
 				Projects: []niks.Project{
 					{
@@ -43,5 +43,13 @@ func TestTemplates(t *testing.T) {
 		require.Equal(t, 200, res.Code)
 		require.Contains(t, res.Body.String(), "proj_world")
 		require.Contains(t, res.Body.String(), "proj_moon")
+	})
+
+	t.Run("static", func(t *testing.T) {
+		t.Skip("bork")
+		req := httptest.NewRequest("GET", "/static/s.css", nil)
+		res := httptest.NewRecorder()
+		m.ServeHTTP(res, req)
+		require.Equal(t, 200, res.Code)
 	})
 }

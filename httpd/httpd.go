@@ -6,5 +6,5 @@ import (
 
 var (
 	//go:embed *.tmpl
-	staticRoot embed.FS
+	TemplateRoot embed.FS
 )

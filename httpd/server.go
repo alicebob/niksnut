@@ -11,7 +11,8 @@ import (
 type Server struct {
 	Addr      string
 	BuildsDir string
-	Root      fs.FS
+	Root      fs.FS // templates
+	Static    fs.FS
 	Config    niks.Config
 }
 
@@ -33,6 +34,11 @@ func (s *Server) Mux() *http.ServeMux {
 	m.HandleFunc("GET /build", s.hndBuild)
 	m.HandleFunc("POST /build", s.hndBuild)
 	m.HandleFunc("GET /builds", s.hndBuilds)
+
+	// TODO: add cache headers
+	st, _ := fs.Sub(s.Static, "static")
+	m.Handle("GET /static/*", http.StripPrefix("/static/", http.FileServerFS(st)))
+
 	return m
 }
 
