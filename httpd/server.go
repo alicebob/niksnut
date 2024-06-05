@@ -31,6 +31,7 @@ func (s *Server) Mux() *http.ServeMux {
 	m.HandleFunc("GET /{$}", s.hndIndex)
 	m.HandleFunc("GET /build", s.hndBuild)
 	m.HandleFunc("POST /build", s.hndBuild)
+	m.HandleFunc("GET /builds", s.hndBuilds)
 	return m
 }
 

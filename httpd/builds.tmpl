@@ -1,0 +1,21 @@
+{{define "title"}}builds todo{{end}}
+{{define "main"}}
+build status!<br />
+
+{{showerror .Error}}
+
+{{if .BuildID}}
+	Build: {{.BuildID}}!<br />
+	{{with .Status}}
+	Start: {{.Start}}<br />
+	Done: {{.Done}}<br />
+	Success: {{.Success}}<br />
+	Error: {{with .Error}}{{.}}{{else}}(none){{end}}<br />
+	{{end}}
+	Stdout:<br />
+	<pre>
+		{{.Stdout}}
+	</pre>
+	<a href="./">back</a>
+{{end}}
+{{end}}

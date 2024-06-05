@@ -1,10 +1,16 @@
 package niks
 
 import (
-	"fmt"
 	"os"
 	"sort"
 )
+
+func validBuildDir(id string) bool {
+	root := buildsDir // FIXME
+	p := root + id + "/status.json"
+	_, err := os.ReadFile(p)
+	return err == nil
+}
 
 // Lists build (dirs), ordered latest first. Dirs without status.json are ignored.
 func ListBuilds() ([]Build, error) {
@@ -19,17 +25,14 @@ func ListBuilds() ([]Build, error) {
 		if !l.IsDir() {
 			continue
 		}
-		p := root + l.Name()
-		fmt.Printf("P: %s\n", p)
-		st := p + "/status.json"
-		if _, err := os.ReadFile(st); err != nil {
+		id := l.Name()
+		if !validBuildDir(id) {
 			continue
 		}
+		p := root + id
 		bs = append(bs, Build{
-			ID:         l.Name(),
-			Path:       p,
-			StdoutFile: p + "/stdout.txt",
-			StatusFile: p + "/status.json",
+			ID:   l.Name(),
+			Path: p,
 		})
 	}
 	sort.Slice(bs, func(i, j int) bool { return bs[j].ID < bs[i].ID })

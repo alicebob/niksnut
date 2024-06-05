@@ -2,6 +2,7 @@ package niks
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -10,10 +11,8 @@ import (
 
 type (
 	Build struct {
-		ID         string
-		Path       string
-		StdoutFile string
-		StatusFile string
+		ID   string
+		Path string // with trailing /
 	}
 	Status struct {
 		Start   time.Time `json:"start"`
@@ -27,42 +26,66 @@ type (
 var buildsDir = "./builds/" // obvs should be a var
 var git = "git"             //  path, fixme
 
+// this can be ordered alphabetically, and looks nice in URLs (no escaped chars)
+func genID(t time.Time, projID string) string {
+	return fmt.Sprintf("%s_%s", t.Format("20060102T150405"), projID)
+}
+
 // Create build ID + mkdir. This should be enough to report "in progress" in a UI.
 // Use Run() after this.
 func SetupBuild(p Project) (*Build, error) {
 	t := time.Now().UTC()
-	id := fmt.Sprintf("%s_%s", t.Format(time.RFC3339), p.ID)
+	id := genID(t, p.ID)
 	path := buildsDir + id + "/"
 	if err := os.MkdirAll(path, 0744); err != nil {
 		return nil, err
 	}
 
 	b := &Build{
-		ID:         id,
-		Path:       path,
-		StdoutFile: path + "stdout.txt",
-		StatusFile: path + "status.json",
+		ID:   id,
+		Path: path,
 	}
 
 	// create the files to make reading them easy
-	if err := os.WriteFile(b.StdoutFile, nil, 0666); err != nil {
+	if err := os.WriteFile(b.Path+"stdout.txt", nil, 0666); err != nil {
 		return nil, err
 	}
+	// it's only a valid build dir with a status.json file
 	if err := b.WriteStatus(Status{}); err != nil {
 		return nil, err
 	}
 	return b, nil
 }
 
-// func (b *Build) Status() Status {
-// }
+func LoadBuild(id string) (*Build, error) {
+	if !validBuildDir(id) {
+		return nil, errors.New("build not found")
+	}
+
+	return &Build{
+		ID:   id,
+		Path: buildsDir + id + "/",
+	}, nil
+}
+
+func (b *Build) Status() Status {
+	var s Status
+	bytes, err := os.ReadFile(b.Path + "status.json")
+	fmt.Printf("read %s %s\n", bytes, err)
+	if err != nil {
+		return s
+	}
+	json.Unmarshal(bytes, &s)
+	return s
+}
+
 func (b *Build) Stdout() string {
-	bytes, _ := os.ReadFile(b.StdoutFile)
+	bytes, _ := os.ReadFile(b.Path + "stdout.txt")
 	return string(bytes)
 }
 
 func (b *Build) WriteStatus(s Status) error {
-	fh, err := os.Create(b.StatusFile)
+	fh, err := os.Create(b.Path + "status.json")
 	if err != nil {
 		return err
 	}
@@ -92,7 +115,7 @@ func (b *Build) Run(p Project, branch string) error {
 
 	work := b.Path + "work/"
 
-	stdout, err := os.Create(b.StdoutFile)
+	stdout, err := os.Create(b.Path + "stdout.txt")
 	if err != nil {
 		return err
 	}

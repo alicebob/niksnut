@@ -34,6 +34,7 @@ func TestTemplates(t *testing.T) {
 
 	require.NoError(t, templatecheck.CheckHTML(s.loadTemplate(ctx, "index.tmpl"), indexArgs{}))
 	require.NoError(t, templatecheck.CheckHTML(s.loadTemplate(ctx, "build.tmpl"), buildArgs{}))
+	require.NoError(t, templatecheck.CheckHTML(s.loadTemplate(ctx, "builds.tmpl"), buildsArgs{}))
 
 	t.Run("index", func(t *testing.T) {
 		req := httptest.NewRequest("GET", "/", nil)
