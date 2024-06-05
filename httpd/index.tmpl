@@ -2,8 +2,13 @@
 {{define "main"}}
 hello template!<br />
 
-Projects:<br />
+<h2>Projects:</h2>
 	{{range .Config.Projects}}
 		- {{.ID}} - <a href="./build?projid={{.ID}}">build</a>: {{.Name}}<br />
 	{{end}}
+
+<h2>Builds:</h2>
+{{range .Builds}}
+	<a href="./builds?buildid={{.ID}}">{{.ID}}</a><br />
+{{end}}
 {{end}}
