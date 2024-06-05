@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/exec"
 	"time"
+
+	"github.com/alicebob/niksnut/niks"
 )
 
 type (
@@ -22,7 +24,7 @@ var buildsDir = "./builds/" // obvs should be a var
 var git = "git"             //  path, fixme
 
 // Run a build. An error will be returned on a "system" error: no git available or no network. "config" errors ("no access to repo") and build errors will be part of Result.
-func Run(p Project) (*Result, error) {
+func Run(p niks.Project) (*Result, error) {
 	t := time.Now().UTC()
 	branch := "main"
 	stdout := &bytes.Buffer{}

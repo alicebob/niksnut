@@ -4,11 +4,14 @@ import (
 	"errors"
 	"io/fs"
 	"net/http"
+
+	"github.com/alicebob/niksnut/niks"
 )
 
 type Server struct {
-	Addr string
-	Root fs.FS
+	Addr   string
+	Root   fs.FS
+	Config niks.Config
 }
 
 func (s *Server) Run() error {

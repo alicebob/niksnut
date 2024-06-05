@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/alicebob/niksnut/httpd"
+	"github.com/alicebob/niksnut/niks"
 )
 
 var (
@@ -33,7 +34,7 @@ func main() {
 		return
 	}
 
-	config, err := ReadConfig(cli.configFile)
+	config, err := niks.ReadConfig(cli.configFile)
 	if err != nil {
 		fmt.Printf("error reading %s: %s\n", cli.configFile, err)
 		os.Exit(1)
@@ -64,8 +65,9 @@ func main() {
 		}
 
 		s := &httpd.Server{
-			Addr: cli.httpdListen,
-			Root: os.DirFS("./httpd/"), // FIXME
+			Addr:   cli.httpdListen,
+			Root:   os.DirFS("./httpd/"), // FIXME
+			Config: *config,
 		}
 
 		fmt.Printf("starting httpd on %s\n", s.Addr)
@@ -156,7 +158,7 @@ func parseFlags() *cliFlags {
 	return fl
 }
 
-func cliRun(config *Config, projectID string) {
+func cliRun(config *niks.Config, projectID string) {
 	fmt.Printf("run of %s:\n", projectID)
 	// fixme all
 	p := config.Projects[0]

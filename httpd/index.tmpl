@@ -1,4 +1,9 @@
 {{define "title"}}hello{{end}}
 {{define "main"}}
-hello template!
+hello template!<br />
+
+Projects:<br />
+	{{range .Config.Projects}}
+		- {{.ID}}: {{.Name}}<br />
+	{{end}}
 {{end}}
