@@ -2,6 +2,7 @@ package httpd
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/alicebob/niksnut/niks"
@@ -43,7 +44,10 @@ func (s *Server) build(ctx context.Context, r *http.Request, args *buildArgs) er
 		args.BuildID = build.ID
 		go func() {
 			// fixme: waitgroup
-			build.Run(args.Project, args.Branch)
+			// fixme: logs
+			if err := build.Run(args.Project, args.Branch); err != nil {
+				fmt.Printf("build: %s\n", err.Error())
+			}
 		}()
 	}
 	return nil

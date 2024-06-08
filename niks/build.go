@@ -121,7 +121,8 @@ func (b *Build) Run(p Project, branch string) error {
 		clone := exec.Command(cmdGit, "clone", "--depth", "1", "--branch", branch, p.Git, work)
 		out, err := clone.Output()
 		if err != nil {
-			return err
+			s.Error = err.Error()
+			return nil
 		}
 		fmt.Fprintf(stdout, "$ "+clone.String()+"\n"+string(out)+"\n")
 	}
