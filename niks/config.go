@@ -22,18 +22,8 @@ type (
 )
 
 func ReadConfig(f string) (*Config, error) {
-	src := fmt.Sprintf(`
-			let
-			  sources = import ./build/default.nix;
-			  pkgs = import sources.nixpkgs { };
-			in
-			  (import %s) pkgs
-		`,
-		f,
-	)
 	stderr := &bytes.Buffer{}
-	// fmt.Printf("about to: %q\n", src)
-	cmd := exec.Command(cmdNixInstantiate, "--strict", "--json", "--read-write-mode", "--eval", "--expr", src)
+	cmd := exec.Command(cmdNixInstantiate, "--strict", "--json", "--read-write-mode", "--eval", f)
 	cmd.Stderr = stderr
 	// fmt.Printf("running: %s\n", cmd.String())
 	out, err := cmd.Output()
