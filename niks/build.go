@@ -202,6 +202,7 @@ func (b *Build) Run(p Project, branch string) error {
 
 // find links to store derivations
 func findDerivs(s string) []string {
-	re := regexp.MustCompile(`/nix/store/[^/]+`)
+	re := regexp.MustCompile(`/nix/store/[^/ ]+`)
+	// could de-dup the strings (nix doesn't care).
 	return re.FindAllString(s, -1)
 }
