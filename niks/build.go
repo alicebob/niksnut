@@ -1,6 +1,7 @@
 package niks
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -117,37 +118,67 @@ func (b *Build) Run(p Project, branch string) error {
 	}
 	defer stdout.Close()
 
-	{
-		clone := exec.Command(cmdGit, "clone", "--depth", "1", "--branch", branch, p.Git, work)
-		fmt.Fprintf(stdout, "$ "+clone.String()+"\n")
-		clone.Stdout = stdout
-		clone.Stderr = stdout
-		err := clone.Run()
+	call := func(cmd string, args ...string) (string, error) {
+		stderr := &bytes.Buffer{}
+		exe := exec.Command(cmd, args...)
+		exe.Stderr = stderr
+		exe.Dir = work
+		stdout.WriteString("$ " + exe.String() + "\n")
+		out, err := exe.Output()
 		if err != nil {
-			s.Error = fmt.Sprintf("git: %s", err.Error())
-			return nil
+			stdout.Write(stderr.Bytes())
+			s.Error = fmt.Sprintf("%s: %s", cmd, err.Error())
 		}
+		stdout.Write(out)
+		return string(out), err
 	}
 
 	{
-		build := exec.Command(cmdNixBuild, "-A", p.Attribute)
-		fmt.Fprintf(stdout, "$ "+build.String()+"\n")
-		build.Dir = work
-		build.Stdout = stdout
-		build.Stderr = stdout
-		if err := build.Run(); err != nil {
-			s.Error = err.Error()
+		exe := exec.Command(cmdGit, "clone", "--depth", "1", "--branch", branch, p.Git, work)
+		exe.Stdout = stdout
+		exe.Stderr = stdout
+		stdout.WriteString("$ " + exe.String() + "\n")
+		err := exe.Run()
+		if err != nil {
+			s.Error = fmt.Sprintf("%s: %s", cmdGit, err.Error())
 			return nil
 		}
 	}
 
+	fullRev, err := call(cmdGit, "rev-parse", "HEAD")
+	if err != nil {
+		return nil
+	}
+	shortRev, err := call(cmdGit, "rev-parse", "--short", "HEAD")
+	if err != nil {
+		return nil
+	}
+
+	{
+		exe := exec.Command(cmdNixBuild, "-A", p.Attribute)
+		exe.Stdout = stdout
+		exe.Stderr = stdout
+		exe.Dir = work
+		stdout.WriteString("$ " + exe.String() + "\n")
+		err := exe.Run()
+		if err != nil {
+			s.Error = fmt.Sprintf("%s: %s", cmdNixBuild, err.Error())
+			return nil
+		}
+	}
 	if p.Post != "" {
-		post := exec.Command(cmdBash, "-c", p.Post)
-		fmt.Fprintf(stdout, "$ "+post.String()+"\n")
-		post.Dir = work
-		post.Stdout = stdout
-		post.Stderr = stdout
-		if err := post.Run(); err != nil {
+		exe := exec.Command(cmdBash, "-c", p.Post)
+		exe.Stdout = stdout
+		exe.Stderr = stdout
+		exe.Dir = work
+		exe.Env = []string{
+			fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
+			fmt.Sprintf("BRANCH_NAME=%s", branch),
+			fmt.Sprintf("SHA=%s", fullRev), // CHECKME: don't know what the normal name is
+			fmt.Sprintf("SHORT_SHA=%s", shortRev),
+		}
+		stdout.WriteString("$ " + exe.String() + "\n")
+		if err := exe.Run(); err != nil {
 			s.Error = err.Error()
 			return nil
 		}

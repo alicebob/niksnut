@@ -22,6 +22,7 @@ in
 				echo pwd: $(pwd)
 				echo readlink: $(readlink -f ./result/)
 				echo result: $(ls ./result/)
+				echo ENV: $(printenv)
 			'';
 		}
 		{
