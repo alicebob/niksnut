@@ -1,0 +1,27 @@
+# github.com/davecgh/go-spew v1.1.1
+## explicit
+github.com/davecgh/go-spew/spew
+# github.com/google/safehtml v0.0.2
+## explicit; go 1.14
+github.com/google/safehtml
+github.com/google/safehtml/internal/raw
+github.com/google/safehtml/internal/safehtmlutil
+github.com/google/safehtml/internal/template/raw
+github.com/google/safehtml/template
+github.com/google/safehtml/uncheckedconversions
+# github.com/jba/templatecheck v0.7.0
+## explicit; go 1.18
+github.com/jba/templatecheck
+# github.com/pmezard/go-difflib v1.0.0
+## explicit
+github.com/pmezard/go-difflib/difflib
+# github.com/stretchr/testify v1.9.0
+## explicit; go 1.17
+github.com/stretchr/testify/assert
+github.com/stretchr/testify/require
+# golang.org/x/text v0.3.3
+## explicit; go 1.11
+golang.org/x/text/unicode/rangetable
+# gopkg.in/yaml.v3 v3.0.1
+## explicit
+gopkg.in/yaml.v3

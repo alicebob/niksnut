@@ -1,0 +1,32 @@
+let
+  sources = import ./build/default.nix;
+  gocache = pkgs.callPackage ./gocache.nix { };
+  pkgs = import sources.nixpkgs { };
+in
+{
+  niksnut = pkgs.buildGoModule {
+    name = "niksnut";
+    buildInputs = [ gocache ];
+    src = pkgs.lib.sourceByRegex ./. [
+      "go.(mod|sum)"
+      ".*\.go"
+	  "vendor"
+	  "vendor/.*"
+	  "httpd"
+	  "httpd/.*"
+	  "niks"
+	  "niks/.*"
+	  "static"
+	  "static/.*"
+    ];
+    vendorHash = null; # uses ./vendor/
+    doCheck = false;
+  };
+
+  shell = pkgs.mkShellNoCC {
+    packages = [
+      pkgs.nixfmt-rfc-style
+      pkgs.npins
+    ];
+  };
+}
