@@ -1,7 +1,7 @@
 let
   sources = import ./build/default.nix;
-  gocache = pkgs.callPackage ./gocache.nix { };
   pkgs = import sources.nixpkgs { };
+  gocache = pkgs.callPackage ./gocache.nix { };
 in
 {
   niksnut = pkgs.buildGoModule {

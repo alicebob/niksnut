@@ -5,4 +5,5 @@ var (
 	cmdBash           = "bash"
 	cmdNixInstantiate = "nix-instantiate"
 	cmdNixBuild       = "nix-build"
+	cmdNixStore       = "nix-store"
 )

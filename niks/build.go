@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"time"
 )
 
@@ -167,6 +168,16 @@ func (b *Build) Run(p Project, branch string) error {
 		}
 	}
 	if p.Post != "" {
+		// nix-instantiate expands things like "hello ${pkgs.openssh}/bin/ssh",
+		// but it doesn't realize the paths. So we do that here. If there's a
+		// less fragile way: I'm listening.
+		if derivs := findDerivs(p.Post); len(derivs) > 0 {
+			args := append([]string{"--realize"}, derivs...)
+			if _, err := call(cmdNixStore, args...); err != nil {
+				s.Error = fmt.Sprintf("%s: %s", cmdNixStore, err.Error())
+			}
+		}
+
 		exe := exec.Command(cmdBash, "-c", p.Post)
 		exe.Stdout = stdout
 		exe.Stderr = stdout
@@ -187,4 +198,10 @@ func (b *Build) Run(p Project, branch string) error {
 	s.Success = true
 
 	return nil
+}
+
+// find links to store derivations
+func findDerivs(s string) []string {
+	re := regexp.MustCompile(`/nix/store/[^/]+`)
+	return re.FindAllString(s, -1)
 }

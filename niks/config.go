@@ -1,7 +1,9 @@
 package niks
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"os/exec"
 )
 
@@ -20,12 +22,23 @@ type (
 )
 
 func ReadConfig(f string) (*Config, error) {
-	// nix := fmt.Sprintf("with import %s; builtins.toJSON projects", f)
-	// cmd := exec.Command("nix-instantiate", "--eval", "-E", nix)
-	cmd := exec.Command(cmdNixInstantiate, "--eval", "--strict", "--json", f)
+	src := fmt.Sprintf(`
+			let
+			  sources = import ./build/default.nix;
+			  pkgs = import sources.nixpkgs { };
+			in
+			  (import %s) pkgs
+		`,
+		f,
+	)
+	stderr := &bytes.Buffer{}
+	// fmt.Printf("about to: %q\n", src)
+	cmd := exec.Command(cmdNixInstantiate, "--strict", "--json", "--read-write-mode", "--eval", "--expr", src)
+	cmd.Stderr = stderr
 	// fmt.Printf("running: %s\n", cmd.String())
 	out, err := cmd.Output()
 	if err != nil {
+		fmt.Printf("config: %s\n", stderr.String())
 		return nil, err
 	}
 	// fmt.Printf("config json: %s\n", out)

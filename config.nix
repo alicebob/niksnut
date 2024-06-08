@@ -1,3 +1,4 @@
+{ pkgs, ... }:
 let
   # sources = import ./build/default.nix;
   # pkgs = import sources.nixpkgs { };
@@ -16,13 +17,14 @@ in
 			git = repo;
 			#nixfile = "/default.nix";
 			attribute = "gohello";
-			# buildInputs = [pkgs.ssh];
+			# buildInputs = [pkgs.openssh];
 			post = ''
 				echo that was it!.
 				echo pwd: $(pwd)
 				echo readlink: $(readlink -f ./result/)
 				echo result: $(ls ./result/)
 				echo ENV: $(printenv)
+				$(${pkgs.openssh}/bin/ssh -V)
 			'';
 		}
 		{
