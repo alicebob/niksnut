@@ -13,9 +13,7 @@ build!<br />
 		Project: {{.Project.Name}}<br />
 		<form method="POST" action="./build">
 		<input type="hidden" name="projid" value="{{.ProjID}}" />
-		<fieldset>
-			{{radio "branch" "main" $.Branch "main"}}<br />
-		</fieldset>
+        <input type="text" name="branch" value="{{.Branch}}" />
 		<button name="page" value="build">Build!</a>
 		</form>
 	{{end}}

@@ -33,7 +33,7 @@ func (s *Server) build(ctx context.Context, r *http.Request, args *buildArgs) er
 		return err
 	}
 	args.ProjID = id
-	args.Branch = r.FormValue("branch")
+	args.Branch = def(r.FormValue("branch"), "main")
 	args.Page = r.FormValue("page")
 
 	if args.Page == "build" {
@@ -51,4 +51,12 @@ func (s *Server) build(ctx context.Context, r *http.Request, args *buildArgs) er
 		}()
 	}
 	return nil
+}
+
+func def[A comparable](v, d A) A {
+	var zero A
+	if v == zero {
+		return d
+	}
+	return v
 }
