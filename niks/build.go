@@ -173,6 +173,7 @@ func (b *Build) Run(p Project, branch string) error {
 			args = append(args, p.Packages...)
 		}
 		args = append(args, "--pure",
+			"--keep", "NIX_PATH",
 			"--keep", "BRANCH_NAME",
 			"--keep", "SHA",
 			"--keep", "SHORT_SHA",
