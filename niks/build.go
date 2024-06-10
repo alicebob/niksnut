@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 )
 
@@ -149,10 +150,12 @@ func (b *Build) Run(p Project, branch string) error {
 	if err != nil {
 		return nil
 	}
+	fullRev = strings.TrimSpace(fullRev)
 	shortRev, err := call(cmdGit, "rev-parse", "--short", "HEAD")
 	if err != nil {
 		return nil
 	}
+	shortRev = strings.TrimSpace(shortRev)
 
 	{
 		exe := exec.Command(cmdNixBuild, "-A", p.Attribute)
@@ -173,6 +176,8 @@ func (b *Build) Run(p Project, branch string) error {
 			args = append(args, p.Packages...)
 		}
 		args = append(args, "--pure",
+			"--keep", "HOME",
+			"--keep", "USER",
 			"--keep", "BRANCH_NAME",
 			"--keep", "SHA",
 			"--keep", "SHORT_SHA",

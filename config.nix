@@ -21,11 +21,12 @@ in
 		    packages = [
 		    "which"
 			"openssh"
-    		"(google-cloud-sdk.withExtraComponents [google-cloud-sdk.components.gke-gcloud-auth-plugin])"
-			"kubectl"
+    		#"(google-cloud-sdk.withExtraComponents [google-cloud-sdk.components.gke-gcloud-auth-plugin])"
+			#"kubectl"
 ];
 			post = ''
-				echo that was it!.
+				echo that was all.
+				echo sha: $SHORT_SHA.
 				echo pwd: $(pwd)
 				echo readlink: $(readlink -f ./result/)
 				echo result: $(ls ./result/)
