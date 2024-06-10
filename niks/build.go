@@ -173,7 +173,6 @@ func (b *Build) Run(p Project, branch string) error {
 			args = append(args, p.Packages...)
 		}
 		args = append(args, "--pure",
-			"--keep", "NIX_PATH",
 			"--keep", "BRANCH_NAME",
 			"--keep", "SHA",
 			"--keep", "SHORT_SHA",
@@ -185,6 +184,7 @@ func (b *Build) Run(p Project, branch string) error {
 		exe.Dir = work
 		exe.Env = []string{
 			// fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
+			fmt.Sprintf("NIX_PATH=%s", os.Getenv("NIX_PATH")),
 			fmt.Sprintf("BRANCH_NAME=%s", branch),
 			fmt.Sprintf("SHA=%s", fullRev), // CHECKME: don't know what the normal name is
 			fmt.Sprintf("SHORT_SHA=%s", shortRev),
