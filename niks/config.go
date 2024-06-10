@@ -13,11 +13,12 @@ type (
 	}
 
 	Project struct {
-		ID        string `json:"id"`
-		Name      string `json:"name"`
-		Git       string `json:"git"`
-		Attribute string `json:"attribute"`
-		Post      string `json:"post"`
+		ID        string   `json:"id"`
+		Name      string   `json:"name"`
+		Git       string   `json:"git"`
+		Attribute string   `json:"attribute"`
+		Packages  []string `json:"packages"`
+		Post      string   `json:"post"`
 	}
 )
 

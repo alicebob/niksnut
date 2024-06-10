@@ -1,5 +1,5 @@
 let
-  pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/9b5328b7f761a7bbdc0e332ac4cf076a3eedb89b.tar.gz") {};
+  # pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/9b5328b7f761a7bbdc0e332ac4cf076a3eedb89b.tar.gz") {};
   # sources = import ./build/default.nix;
   # pkgs = import sources.nixpkgs { };
   repo = "ssh://git@github.com/alicebob/gohello";
@@ -18,13 +18,21 @@ in
 			#nixfile = "/default.nix";
 			attribute = "gohello";
 			# buildInputs = [pkgs.openssh];
+		    packages = [
+		    "which"
+			"openssh"
+    		"(google-cloud-sdk.withExtraComponents [google-cloud-sdk.components.gke-gcloud-auth-plugin])"
+			"kubectl"
+];
 			post = ''
 				echo that was it!.
 				echo pwd: $(pwd)
 				echo readlink: $(readlink -f ./result/)
 				echo result: $(ls ./result/)
 				echo ENV: $(printenv)
-				$(${pkgs.openssh}/bin/ssh -V)
+				echo which ssh: $(which ssh)
+				echo ssh version: $(ssh -V)
+				echo kubectl version: $(kubectl -V)
 			'';
 		}
 		{

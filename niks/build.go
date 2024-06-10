@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"regexp"
 	"time"
 )
 
@@ -168,22 +167,23 @@ func (b *Build) Run(p Project, branch string) error {
 		}
 	}
 	if p.Post != "" {
-		// nix-instantiate expands things like "hello ${pkgs.openssh}/bin/ssh",
-		// but it doesn't realize the paths. So we do that here. If there's a
-		// less fragile way: I'm listening.
-		if derivs := findDerivs(p.Post); len(derivs) > 0 {
-			args := append([]string{"--realize"}, derivs...)
-			if _, err := call(cmdNixStore, args...); err != nil {
-				s.Error = fmt.Sprintf("%s: %s", cmdNixStore, err.Error())
-			}
+		args := []string{}
+		if len(p.Packages) > 0 {
+			args = append(args, "-p")
+			args = append(args, p.Packages...)
 		}
-
-		exe := exec.Command(cmdBash, "-c", p.Post)
+		args = append(args, "--pure",
+			"--keep", "BRANCH_NAME",
+			"--keep", "SHA",
+			"--keep", "SHORT_SHA",
+			"--run", p.Post,
+		)
+		exe := exec.Command(cmdNixShell, args...)
 		exe.Stdout = stdout
 		exe.Stderr = stdout
 		exe.Dir = work
 		exe.Env = []string{
-			fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
+			// fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
 			fmt.Sprintf("BRANCH_NAME=%s", branch),
 			fmt.Sprintf("SHA=%s", fullRev), // CHECKME: don't know what the normal name is
 			fmt.Sprintf("SHORT_SHA=%s", shortRev),
@@ -198,11 +198,4 @@ func (b *Build) Run(p Project, branch string) error {
 	s.Success = true
 
 	return nil
-}
-
-// find links to store derivations
-func findDerivs(s string) []string {
-	re := regexp.MustCompile(`/nix/store/[^/ ]+`)
-	// could de-dup the strings (nix doesn't care).
-	return re.FindAllString(s, -1)
 }
