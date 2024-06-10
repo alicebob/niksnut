@@ -184,6 +184,8 @@ func (b *Build) Run(p Project, branch string) error {
 		exe.Dir = work
 		exe.Env = []string{
 			// fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
+			fmt.Sprintf("USER=%s", os.Getenv("USER")),
+			fmt.Sprintf("HOME=%s", os.Getenv("HOME")),
 			fmt.Sprintf("NIX_PATH=%s", os.Getenv("NIX_PATH")),
 			fmt.Sprintf("BRANCH_NAME=%s", branch),
 			fmt.Sprintf("SHA=%s", fullRev), // CHECKME: don't know what the normal name is
