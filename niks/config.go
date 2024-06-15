@@ -26,13 +26,11 @@ func ReadConfig(f string) (*Config, error) {
 	stderr := &bytes.Buffer{}
 	cmd := exec.Command(cmdNixInstantiate, "--strict", "--json", "--read-write-mode", "--eval", f)
 	cmd.Stderr = stderr
-	// fmt.Printf("running: %s\n", cmd.String())
 	out, err := cmd.Output()
 	if err != nil {
 		fmt.Printf("config: %s\n", stderr.String())
 		return nil, err
 	}
-	// fmt.Printf("config json: %s\n", out)
 
 	var c Config
 	return &c, json.Unmarshal(out, &c)

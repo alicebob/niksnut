@@ -1,7 +1,4 @@
 let
-  # pkgs = import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/9b5328b7f761a7bbdc0e332ac4cf076a3eedb89b.tar.gz") {};
-  # sources = import ./build/default.nix;
-  # pkgs = import sources.nixpkgs { };
   repo = "ssh://git@github.com/alicebob/gohello";
 in
 {

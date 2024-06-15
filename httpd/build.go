@@ -9,12 +9,13 @@ import (
 )
 
 type buildArgs struct {
-	Page    string
-	Error   string
-	ProjID  string
-	Project niks.Project
-	Branch  string
-	BuildID string
+	Page     string
+	Error    string
+	ProjID   string
+	Project  niks.Project
+	Branch   string
+	BuildID  string
+	Branches []string
 }
 
 func (s *Server) hndBuild(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +37,8 @@ func (s *Server) build(ctx context.Context, r *http.Request, args *buildArgs) er
 	args.Branch = def(r.FormValue("branch"), "main")
 	args.Page = r.FormValue("page")
 
-	if args.Page == "build" {
+	switch args.Page {
+	case "build":
 		build, err := niks.SetupBuild(s.BuildsDir, args.Project)
 		if err != nil {
 			return nil
@@ -45,10 +47,16 @@ func (s *Server) build(ctx context.Context, r *http.Request, args *buildArgs) er
 		go func() {
 			// fixme: waitgroup
 			// fixme: logs
-			if err := build.Run(args.Project, args.Branch); err != nil {
+			if err := build.Run(s.BuildsDir, args.Project, args.Branch); err != nil {
 				fmt.Printf("build: %s\n", err.Error())
 			}
 		}()
+	case "":
+		br, err := niks.Branches(s.BuildsDir, args.Project.Git)
+		if err != nil {
+			return err
+		}
+		args.Branches = br
 	}
 	return nil
 }

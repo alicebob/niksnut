@@ -17,6 +17,7 @@ type (
 		Path string // with trailing /
 	}
 	Status struct {
+		Branch  string    `json:"branch"`
 		Start   time.Time `json:"start"`
 		Done    bool      `json:"done"`
 		Success bool      `json:"success"`
@@ -30,19 +31,23 @@ func genID(t time.Time, projID string) string {
 	return fmt.Sprintf("%s_%s", t.Format("20060102T150405"), projID)
 }
 
+func buildPath(root, id string) string {
+	return fmt.Sprintf("%s/runs/%s/", root, id)
+}
+
 // Create build ID + mkdir. This should be enough to report "in progress" in a UI.
 // Use Run() after this.
-func SetupBuild(buildsDir string, p Project) (*Build, error) {
+func SetupBuild(root string, p Project) (*Build, error) {
 	t := time.Now().UTC()
 	id := genID(t, p.ID)
-	path := buildsDir + id + "/"
-	if err := os.MkdirAll(path, 0744); err != nil {
+	dst := buildPath(root, id)
+	if err := os.MkdirAll(dst, 0744); err != nil {
 		return nil, err
 	}
 
 	b := &Build{
 		ID:   id,
-		Path: path,
+		Path: dst,
 	}
 
 	// create the files to make reading them easy
@@ -56,14 +61,15 @@ func SetupBuild(buildsDir string, p Project) (*Build, error) {
 	return b, nil
 }
 
-func LoadBuild(buildsDir string, id string) (*Build, error) {
-	if !validBuildDir(buildsDir, id) {
+func LoadBuild(root string, id string) (*Build, error) {
+	dst := buildPath(root, id)
+	if !validBuildDir(dst) {
 		return nil, errors.New("build not found")
 	}
 
 	return &Build{
 		ID:   id,
-		Path: buildsDir + id + "/",
+		Path: dst,
 	}, nil
 }
 
@@ -94,15 +100,17 @@ func (b *Build) WriteStatus(s Status) error {
 	return e.Encode(s)
 }
 
-// Run a build. An error will be returned on a "system" error: no git available or no network. "config" errors ("no access to repo") and build errors will be part of Result. Otherwise you can read the status.json file.
+// Run a build. An error will be returned on a "system" error: no git available or no network. "config" errors ("no access to repo") and build errors will be part of Result. For other info you can read the status.json file.
 // Dir structure:
 //
-//	.../work/ -> checkout and PWD
-//	  ./stdout.txt
-//	  ./status.json
-func (b *Build) Run(p Project, branch string) error {
+//	/repo/repoid.git -> headless checkout
+//	/runs/123/work/ -> checkout and PWD
+//	        ./stdout.txt
+//	        ./status.json
+func (b *Build) Run(root string, p Project, branch string) error {
 	s := Status{
-		Start: time.Now().UTC(),
+		Branch: branch,
+		Start:  time.Now().UTC(),
 	}
 	if err := b.WriteStatus(s); err != nil {
 		return err
@@ -135,18 +143,11 @@ func (b *Build) Run(p Project, branch string) error {
 		return string(out), err
 	}
 
-	{
-		exe := exec.Command(cmdGit, "clone", "--depth", "1", "--branch", branch, p.Git, work)
-		exe.Stdout = stdout
-		exe.Stderr = stdout
-		stdout.WriteString("$ " + exe.String() + "\n")
-		err := exe.Run()
-		if err != nil {
-			s.Error = fmt.Sprintf("%s: %s", cmdGit, err.Error())
-			return nil
-		}
+	if err := Checkout(root, p.Git, work, branch); err != nil {
+		return nil
 	}
 
+	// TODO: move to niks lib and/or return from niks.Checkout().
 	fullRev, err := call(cmdGit, "rev-parse", "HEAD")
 	if err != nil {
 		return nil

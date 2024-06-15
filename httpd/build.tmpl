@@ -11,9 +11,12 @@ build!<br />
 		<a href="./">back</a>	
 	{{else}}
 		Project: {{.Project.Name}}<br />
+		Repo: {{.Project.Git}}<br />
 		<form method="POST" action="./build">
 		<input type="hidden" name="projid" value="{{.ProjID}}" />
-        <input type="text" name="branch" value="{{.Branch}}" />
+		{{range .Branches}}
+        <label><input type="radio" name="branch" value="{{.}}" {{if eq . "main"}}CHECKED{{end}}/> {{.}}</label><br />
+		{{end}}
 		<button name="page" value="build">Build!</a>
 		</form>
 	{{end}}

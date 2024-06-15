@@ -133,7 +133,7 @@ func parseFlags() *cliFlags {
 
 	f := &flag.FlagSet{}
 	f.StringVar(&fl.configFile, "config", "./config.nix", "config file (.nix)")
-	f.StringVar(&fl.buildsDir, "buildsdir", defaultBuildsDir, "builds directory")
+	f.StringVar(&fl.buildsDir, "buildsdir", defaultBuildsDir, "builds and checkouts directory")
 	f.StringVar(&fl.devRoot, "root", "", "if empty, use embedded templates and /static/ files")
 	f.BoolVar(&fl.help, "help", false, "run help")
 	f.BoolVar(&fl.version, "version", false, "show version")
@@ -205,7 +205,7 @@ func cliRun(buildsDir string, config *niks.Config, projectID string) {
 		fmt.Printf("error setting up build %s: %s\n", p.ID, err)
 		os.Exit(1)
 	}
-	if err := build.Run(p, branch); err != nil {
+	if err := build.Run(buildsDir, p, branch); err != nil {
 		fmt.Printf("error running %s: %s\n", p.ID, err)
 		os.Exit(1)
 	}
