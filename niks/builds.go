@@ -30,7 +30,7 @@ func ListBuilds(buildsDir string) ([]Build, error) {
 		p := buildsDir + id
 		bs = append(bs, Build{
 			ID:   l.Name(),
-			Path: p,
+			Path: p + "/",
 		})
 	}
 	sort.Slice(bs, func(i, j int) bool { return bs[j].ID < bs[i].ID })

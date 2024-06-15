@@ -71,6 +71,7 @@ func (b *Build) Status() Status {
 	var s Status
 	bytes, err := os.ReadFile(b.Path + "status.json")
 	if err != nil {
+		s.Error = err.Error()
 		return s
 	}
 	json.Unmarshal(bytes, &s)

@@ -9,6 +9,7 @@ hello template!<br />
 
 <h2>Builds:</h2>
 {{range .Builds}}
-	<a href="./builds?buildid={{.ID}}">{{.ID}}</a><br />
+	{{ $b := .Status }}
+	<a href="./builds?buildid={{.ID}}">{{.ID}}</a> running:{{not $b.Done}} success:{{$b.Success}}<br />
 {{end}}
 {{end}}
