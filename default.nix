@@ -10,14 +10,14 @@ in
     src = pkgs.lib.sourceByRegex ./. [
       "go.(mod|sum)"
       ".*\.go"
-	  "vendor"
-	  "vendor/.*"
-	  "httpd"
-	  "httpd/.*"
-	  "niks"
-	  "niks/.*"
-	  "static"
-	  "static/.*"
+      "vendor"
+      "vendor/.*"
+      "httpd"
+      "httpd/.*"
+      "niks"
+      "niks/.*"
+      "static"
+      "static/.*"
     ];
     vendorHash = null; # uses ./vendor/
     doCheck = false;
@@ -27,6 +27,7 @@ in
     packages = [
       pkgs.nixfmt-rfc-style
       pkgs.npins
+      pkgs.nodePackages.prettier
     ];
   };
 }

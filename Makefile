@@ -22,7 +22,11 @@ nixpin:
 	#%nix-shell --run "npins -d ./build init"
 	nix-shell --run "npins -d ./build update"
 
-.PHONY: nixfmt
-nixfmt:
+.PHONY: fmt
+fmt:
 	nix-shell --run "nixfmt *.nix"
+	nix-shell --run "prettier -w static/s.css"
 
+.PHONY: shell
+shell:
+	nix-shell
