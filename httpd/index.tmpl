@@ -1,15 +1,26 @@
 {{define "title"}}hello{{end}}
 {{define "main"}}
-hello template!<br />
 
-<h2>Projects:</h2>
+<main>
+<div class="col col2a">
+	<h2>Projects:</h2>
+	<div>
+	<ul>
 	{{range .Config.Projects}}
-		- {{.ID}} - <a href="./build?projid={{.ID}}">build</a>: {{.Name}}<br />
+		<li>{{.ID}} - <a href="./build?projid={{.ID}}">build</a>: {{.Name}}</li>
 	{{end}}
+	</ul>
+	</div>
+</div>
 
-<h2>Builds:</h2>
-{{range .Builds}}
-	{{ $b := .Status }}
-	<a href="./builds?buildid={{.ID}}">{{.ID}}</a> running:{{not $b.Done}} success:{{$b.Success}}<br />
-{{end}}
+<div class="col col2b">
+	<h2>Builds:</h2>
+	<div>
+	{{range .Builds}}
+		{{ $b := .Status }}
+		<a href="./builds?buildid={{.ID}}">{{.ID}}</a> running:{{not $b.Done}} success:{{$b.Success}}<br />
+	{{end}}
+	</div>
+</div>
+</main>
 {{end}}

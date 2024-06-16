@@ -1,10 +1,13 @@
 {{define "title"}}builds todo{{end}}
 {{define "main"}}
-build status!<br />
+<main>
 
 {{showerror .Error}}
 
 {{if .BuildID}}
+	<div class="col col1">
+	<h2>Build</h2>
+	<div>
 	Build: {{.BuildID}}!<br />
 	{{with .Status}}
 	Branch: {{.Branch}}<br />
@@ -13,10 +16,13 @@ build status!<br />
 	Success: {{.Success}}<br />
 	Error: {{with .Error}}{{.}}{{else}}(none){{end}}<br />
 	{{end}}
-	Stdout:<br />
+	</div>
+	<h2>Stdout:</h2>
+	<div>
 	<pre>
 		{{.Stdout}}
 	</pre>
-	<a href="./">back</a>
+	</div>
 {{end}}
+</main>
 {{end}}
