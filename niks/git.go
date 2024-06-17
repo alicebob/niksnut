@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/url"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -41,6 +42,7 @@ func GitCloneBare(dest, repoURL string) error {
 	exe := exec.Command(cmdGit, "clone", "--bare", "--mirror", repoURL, dest)
 	exe.Env = []string{
 		"GIT_TERMINAL_PROMPT=0",
+		fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
 	}
 	stdout, err := exe.CombinedOutput()
 	if err != nil {
@@ -59,6 +61,7 @@ func GitFetch(repo string) error {
 	exe.Dir = repo
 	exe.Env = []string{
 		"GIT_TERMINAL_PROMPT=0",
+		fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
 	}
 	stdout, err := exe.CombinedOutput()
 	if err != nil {
