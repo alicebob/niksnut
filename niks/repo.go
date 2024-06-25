@@ -12,7 +12,7 @@ func updateLocal(bare, repoURL string) error {
 		}
 	}
 
-	return GitFetch(bare)
+	return GitRemoteUpdate(bare)
 }
 
 // does whatever is needed of: git clone+git fetch+git branch

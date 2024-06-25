@@ -193,10 +193,12 @@ func (b *Build) Run(root string, p Project, branch string) error {
 			// fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
 			fmt.Sprintf("USER=%s", os.Getenv("USER")),
 			fmt.Sprintf("HOME=%s", os.Getenv("HOME")),
-			fmt.Sprintf("NIX_PATH=%s", os.Getenv("NIX_PATH")),
 			fmt.Sprintf("BRANCH_NAME=%s", branch),
 			fmt.Sprintf("SHA=%s", fullRev), // CHECKME: don't know what the normal name is
 			fmt.Sprintf("SHORT_SHA=%s", shortRev),
+		}
+		if p := os.Getenv("NIX_PATH"); p != "" {
+			exe.Env = append(exe.Env, fmt.Sprintf("NIX_PATH=%s", p))
 		}
 		stdout.WriteString("$ " + exe.String() + "\n")
 		if err := exe.Run(); err != nil {

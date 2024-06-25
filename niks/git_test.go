@@ -52,8 +52,8 @@ func TestGit(t *testing.T) {
 		})
 	})
 
-	t.Run("fetch", func(t *testing.T) {
-		require.NoError(t, GitFetch(dest))
+	t.Run("remote", func(t *testing.T) {
+		require.NoError(t, GitRemoteUpdate(dest))
 	})
 
 	t.Run("branches", func(t *testing.T) {

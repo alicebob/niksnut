@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-// makes a "path safe id" from a repo. It's not a 100% unique URL.
+// makes a "path safe id" from a repo. It's not a 100% unique id, but Good Enough.
 func repoID(repo string) string {
 	u, err := url.Parse(repo)
 	if err != nil {
@@ -56,8 +56,8 @@ func GitCloneBare(dest, repoURL string) error {
 	return nil
 }
 
-func GitFetch(repo string) error {
-	exe := exec.Command(cmdGit, "fetch", "origin")
+func GitRemoteUpdate(repo string) error {
+	exe := exec.Command(cmdGit, "remote", "update", "--prune")
 	exe.Dir = repo
 	exe.Env = []string{
 		"GIT_TERMINAL_PROMPT=0",
@@ -65,7 +65,7 @@ func GitFetch(repo string) error {
 	}
 	stdout, err := exe.CombinedOutput()
 	if err != nil {
-		slog.Error("git fetch",
+		slog.Error("git remote",
 			"cmd", exe.String(),
 			"stdout", stdout,
 			"error", err,

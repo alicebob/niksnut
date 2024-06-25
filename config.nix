@@ -30,8 +30,6 @@ in
         	echo ENV: $(printenv)
         	echo which ssh: $(which ssh)
         	echo ssh version: $(ssh -V)
-        	echo which kubectl: $(which kubectl)
-        	echo kubectl version: $(kubectl -V)
       '';
     }
     {
