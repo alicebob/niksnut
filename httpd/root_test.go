@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http/httptest"
 	"testing"
+	"testing/fstest"
 
 	"github.com/jba/templatecheck"
 	"github.com/stretchr/testify/require"
@@ -15,7 +16,11 @@ func TestTemplates(t *testing.T) {
 	var (
 		ctx = context.Background()
 		s   = &Server{
-			Root: TemplateRoot,
+			Root:      TemplateRoot,
+			BuildsDir: "../testdata/",
+			Static: fstest.MapFS{
+				"static/s.css": &fstest.MapFile{Data: []byte(`body { background-color: "fake"}`)},
+			},
 			Config: niks.Config{
 				Projects: []niks.Project{
 					{
@@ -46,7 +51,6 @@ func TestTemplates(t *testing.T) {
 	})
 
 	t.Run("static", func(t *testing.T) {
-		t.Skip("bork")
 		req := httptest.NewRequest("GET", "/static/s.css", nil)
 		res := httptest.NewRecorder()
 		m.ServeHTTP(res, req)

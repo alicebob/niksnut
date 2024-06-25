@@ -1,0 +1,21 @@
+$ /usr/bin/git rev-parse HEAD
+f2b16a7a197d10ff61b362dbc6178d35a8ab71a4
+$ /usr/bin/git rev-parse --short HEAD
+f2b16a7
+$ /usr/bin/nix-build -A gohello
+/nix/store/fnh1r4kh43q6w4p2nlpvdxyv4v1g8q8b-gohello
+$ /usr/bin/nix-shell -p which openssh --pure --keep HOME --keep USER --keep BRANCH_NAME --keep SHA --keep SHORT_SHA --run 	echo that was all.
+	echo sha: $SHORT_SHA.
+	echo pwd: $(pwd)
+	echo readlink: $(readlink -f ./result/)
+	echo result: $(ls ./result/)
+	echo ENV: $(printenv)
+	echo which ssh: $(which ssh)
+	echo ssh version: $(ssh -V)
+
+that was all.
+sha: f2b16a7.
+pwd: /home/someone/src/niksnut/builds/runs/20240625T202157_hello/work
+readlink: /nix/store/fnh1r4kh43q6w4p2nlpvdxyv4v1g8q8b-gohello
+result: bin
+which ssh: /nix/store/8qdxcpska9blj6czxwdnbgijkw99bj2h-openssh-9.7p1/bin/ssh
