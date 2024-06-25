@@ -1,9 +1,11 @@
 package httpd
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"net/http"
+	"sort"
 
 	"github.com/alicebob/niksnut/niks"
 )
@@ -56,6 +58,7 @@ func (s *Server) build(ctx context.Context, r *http.Request, args *buildArgs) er
 		if err != nil {
 			return err
 		}
+		mainFirst(br)
 		args.Branches = br
 	}
 	return nil
@@ -67,4 +70,18 @@ func def[A comparable](v, d A) A {
 		return d
 	}
 	return v
+}
+
+// Order branches, with "main" or "master" first.
+// (we should get from git what that branch is)
+func mainFirst(bs []string) {
+	sort.Slice(bs, func(i, j int) bool {
+		if bs[i] == "main" || bs[i] == "master" {
+			return true
+		}
+		if bs[j] == "main" || bs[j] == "master" {
+			return false
+		}
+		return cmp.Less(bs[i], bs[j])
+	})
 }
