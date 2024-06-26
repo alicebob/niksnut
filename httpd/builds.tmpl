@@ -35,7 +35,8 @@
 	</div>
 	<h2>Stdout:</h2>
 	<div>
-		<a href="./stdout?buildid={{.BuildID}}">Raw text output</a>
+		<a href="./stdout?buildid={{.BuildID}}">Raw text output</a> - 
+		<a href="./stdout?buildid={{.BuildID}}&tail=-f">tail -f</a>
 	<pre>
 		{{- .Stdout}}
 	</pre>

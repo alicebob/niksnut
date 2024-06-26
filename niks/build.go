@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -103,8 +104,23 @@ func (b *Build) Status() Status {
 }
 
 func (b *Build) Stdout() string {
-	bytes, _ := os.ReadFile(b.Path + "stdout.txt")
-	return string(bytes)
+	bs, _ := os.ReadFile(b.stdoutFile())
+	return string(bs)
+}
+
+func (b *Build) StdoutOffset(n int) string {
+	fh, err := os.Open(b.stdoutFile())
+	if err != nil {
+		return ""
+	}
+	defer fh.Close()
+	fh.Seek(int64(n), io.SeekStart)
+	bs, _ := io.ReadAll(fh)
+	return string(bs)
+}
+
+func (b *Build) stdoutFile() string {
+	return b.Path + "stdout.txt"
 }
 
 func (b *Build) WriteStatus(s Status) error {
