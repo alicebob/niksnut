@@ -8,14 +8,30 @@
 	<div class="col col1">
 	<h2>Build</h2>
 	<div>
-	Build: {{.BuildID}}!<br />
+	<div class="define">
+		<label>Build</label><note>{{.BuildID}}!</note>
 	{{with .Status}}
-	Branch: {{.Branch}}<br />
-	Start: {{.Start}}<br />
-	Done: {{.Done}}<br />
-	Success: {{.Success}}<br />
-	Error: {{with .Error}}{{.}}{{else}}(none){{end}}<br />
-	{{end}}
+		<label>Branch</label><note>{{.Branch}}</note>
+		<label>Start</label><note>{{datetime .Start}}</note>
+		<label>Done:</label><note>
+			{{if not .Done}}
+				{{showstatus "running"}}
+			{{else}}
+				{{showstatus "success"}}
+			{{end}}
+		</note>
+		{{if .Done}}
+			<label>Success</label><note>
+				{{if .Success}}
+					{{showstatus "success"}}
+				{{else}}
+					{{showstatus "failed"}}
+				{{end}}
+			</note>
+			<label>Error</label><note>{{with .Error}}{{.}}{{else}}(none){{end}}</note>
+		{{end}}
+		{{end}}
+	</div>
 	</div>
 	<h2>Stdout:</h2>
 	<div>

@@ -3,15 +3,14 @@ package niks
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 )
 
 func validBuildDir(p string) bool {
+	p = filepath.Clean(p)
 	if !strings.Contains(p, "/runs/") {
-		return false
-	}
-	if strings.Contains(p, "..") {
 		return false
 	}
 	f := fmt.Sprintf("%s/status.json", p)

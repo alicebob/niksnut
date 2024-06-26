@@ -20,7 +20,7 @@
 		{{ $b := .Status }}
 		<div class="build">
 			<div>
-				<a href="./builds?buildid={{.ID}}">[here be name]</a>
+				<a href="./builds?buildid={{.ID}}">{{.ID}}</a>
 			</div>
 			<div>
 			{{if not $b.Done}}

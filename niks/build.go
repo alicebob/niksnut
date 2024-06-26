@@ -35,6 +35,21 @@ func buildPath(root, id string) string {
 	return fmt.Sprintf("%s/runs/%s/", root, id)
 }
 
+// like buildPath(), but checks if "id" exists.
+func insecureBuildPath(root, id string) (string, error) {
+	runs := fmt.Sprintf("%s/runs/", root)
+	ls, err := os.ReadDir(runs)
+	if err != nil {
+		return "", err
+	}
+	for _, l := range ls {
+		if l.Name() == id {
+			return fmt.Sprintf("%s%s/", runs, id), nil
+		}
+	}
+	return "", errors.New("invalid build id")
+}
+
 // Create build ID + mkdir. This should be enough to report "in progress" in a UI.
 // Use Run() after this.
 func SetupBuild(root string, p Project) (*Build, error) {
@@ -62,7 +77,10 @@ func SetupBuild(root string, p Project) (*Build, error) {
 }
 
 func LoadBuild(root string, id string) (*Build, error) {
-	dst := buildPath(root, id)
+	dst, err := insecureBuildPath(root, id)
+	if err != nil {
+		return nil, errors.New("build not found")
+	}
 	if !validBuildDir(dst) {
 		return nil, errors.New("build not found")
 	}

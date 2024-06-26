@@ -54,7 +54,7 @@ func showstatus(status string) template.HTML {
 		class = "failed"
 		label = "Failed"
 	default:
-		panic("no my compilter can't check this")
+		panic("no my compiler can't check this")
 	}
 
 	return template.HTML(fmt.Sprintf(
