@@ -2,7 +2,7 @@ package httpd
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/alicebob/niksnut/niks"
@@ -19,7 +19,7 @@ func (s *Server) hndIndex(w http.ResponseWriter, r *http.Request) {
 		Config: s.Config,
 	}
 	if err := s.index(ctx, &args); err != nil {
-		fmt.Printf("index: %s\n", err.Error()) // FIXME slog
+		slog.Error("index", "error", err)
 	}
 	render(w, s.loadTemplate(ctx, "index.tmpl"), args)
 }
@@ -30,5 +30,6 @@ func (s *Server) index(ctx context.Context, args *indexArgs) error {
 		return err
 	}
 	args.Builds = ls
+
 	return nil
 }

@@ -7,7 +7,7 @@
 	<div>
 	<ul>
 	{{range .Config.Projects}}
-		<li>{{.ID}} - <a href="./build?projid={{.ID}}">build</a>: {{.Name}}</li>
+		<li><a href="./build?projid={{.ID}}">build</a>: {{.Name}}</li>
 	{{end}}
 	</ul>
 	</div>
@@ -18,7 +18,26 @@
 	<div>
 	{{range .Builds}}
 		{{ $b := .Status }}
-		<a href="./builds?buildid={{.ID}}">{{.ID}}</a> running:{{not $b.Done}} success:{{$b.Success}}<br />
+		<div class="build">
+			<div>
+				<a href="./builds?buildid={{.ID}}">[here be name]</a>
+			</div>
+			<div>
+			{{if not $b.Done}}
+				{{showstatus "running"}}
+			{{else if $b.Success}}
+				{{showstatus "success"}}
+			{{else}}
+				{{showstatus "failed"}}
+			{{end}}
+			</div>
+			<div>
+				{{$b.Branch}}
+			</div>
+			<div>
+				{{datetime $b.Start}}
+			</div>
+		</div>
 	{{end}}
 	</div>
 </div>

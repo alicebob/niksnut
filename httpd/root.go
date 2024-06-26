@@ -11,8 +11,10 @@ import (
 
 func (s *Server) rootTemplate() *template.Template {
 	root := template.New("root").Funcs(template.FuncMap{
-		"showerror": showerror,
-		"radio":     htmlRadio,
+		"showerror":  showerror,
+		"showstatus": showstatus,
+		"radio":      htmlRadio,
+		"datetime":   datetime,
 		// ...
 	})
 	return template.Must(root.ParseFS(s.Root, "root.tmpl"))

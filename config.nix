@@ -22,14 +22,14 @@ in
         #"kubectl"
       ];
       post = ''
-        	echo that was all.
-        	echo sha: $SHORT_SHA.
-        	echo pwd: $(pwd)
-        	echo readlink: $(readlink -f ./result/)
-        	echo result: $(ls ./result/)
-        	echo ENV: $(printenv)
-        	echo which ssh: $(which ssh)
-        	echo ssh version: $(ssh -V)
+        echo that was all.
+        echo sha: $SHORT_SHA.
+        echo pwd: $(pwd)
+        echo readlink: $(readlink -f ./result/)
+        echo result: $(ls ./result/)
+        echo ENV: $(printenv)
+        echo which ssh: $(which ssh)
+        echo ssh version: $(ssh -V)
       '';
     }
     {

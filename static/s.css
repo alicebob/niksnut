@@ -80,6 +80,43 @@ pre {
   overflow-y: scroll;
 }
 
+.status {
+  display: flex;
+}
+.status > .icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  background-color: black;
+  margin: auto 10px;
+}
+.status.running > .icon {
+  background-color: #fcb8ab;
+}
+.status.success > .icon {
+  background-color: #1e9a22;
+}
+.status.failed > .icon {
+  background-color: #ec563a;
+}
+
+.build {
+  display: flex;
+  padding: 5px 5px;
+}
+.build > div:nth-child(1) {
+  flex: 2 1 0;
+}
+.build > div:nth-child(2) {
+  width: 100px;
+}
+.build > div:nth-child(3) {
+  width: 100px;
+}
+.build > div:nth-child(4) {
+  width: 180px;
+}
+
 @media screen and (min-width: 576px) {
   main {
     max-width: 540px;

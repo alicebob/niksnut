@@ -23,6 +23,9 @@ func validBuildDir(p string) bool {
 func ListBuilds(root string) ([]Build, error) {
 	ls, err := os.ReadDir(root + "/runs/")
 	if err != nil {
+		if strings.Contains(err.Error(), "no such file") {
+			return nil, nil
+		}
 		return nil, err
 	}
 

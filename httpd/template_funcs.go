@@ -3,6 +3,11 @@ package httpd
 import (
 	"fmt"
 	"html/template"
+	"time"
+)
+
+var (
+	BrowserTimeFormat = "2006-01-02T15:04:05"
 )
 
 func showerror(e string) template.HTML {
@@ -32,4 +37,36 @@ func htmlRadio(name, value, current string, label string) template.HTML {
 		c,
 		template.HTMLEscapeString(label),
 	))
+}
+
+// little colored dot with a label
+// status can be "running", "success", "failed".
+func showstatus(status string) template.HTML {
+	class, label := "", ""
+	switch status {
+	case "running":
+		class = "running"
+		label = "Running"
+	case "success":
+		class = "success"
+		label = "Success"
+	case "failed":
+		class = "failed"
+		label = "Failed"
+	default:
+		panic("no my compilter can't check this")
+	}
+
+	return template.HTML(fmt.Sprintf(
+		`<div class="status %[1]s" title="%[2]s"><div class="icon"></div> %[2]s</div>`,
+		class,
+		label,
+	))
+}
+
+func datetime(t time.Time) template.HTML {
+	if t.IsZero() {
+		return "-"
+	}
+	return template.HTML(fmt.Sprintf(`<span onmouseover="hoverLocaltime(this)">%s</span>`, t.UTC().Format(BrowserTimeFormat)))
 }

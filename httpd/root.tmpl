@@ -4,6 +4,11 @@
 <head>
   <title>{{block "title" .}}niksnut{{end}} - niksnut</title>
   <link href="/static/s.css" rel="stylesheet" />
+  <script>
+function hoverLocaltime(elem) {
+	elem.title = "In your timezone: " + new Date(elem.innerText+"Z").toString();
+}
+</script>
 </head>
 <body>
 	<header>
