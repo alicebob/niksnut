@@ -13,7 +13,7 @@ type indexArgs struct {
 	Builds []niks.Build
 }
 
-func (s *Server) hndIndex(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handlerIndex(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	args := indexArgs{
 		Config: s.Config,

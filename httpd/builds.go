@@ -17,7 +17,7 @@ type buildsArgs struct {
 	Stdout  string
 }
 
-func (s *Server) hndBuilds(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handlerBuilds(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	args := buildsArgs{}
 	if err := s.builds(ctx, r, &args); err != nil {

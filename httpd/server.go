@@ -30,10 +30,11 @@ func (s *Server) Run() error {
 
 func (s *Server) Mux() *http.ServeMux {
 	m := http.NewServeMux()
-	m.HandleFunc("GET /{$}", s.hndIndex)
-	m.HandleFunc("GET /build", s.hndBuild)
-	m.HandleFunc("POST /build", s.hndBuild)
-	m.HandleFunc("GET /builds", s.hndBuilds)
+	m.HandleFunc("GET /{$}", s.handlerIndex)
+	m.HandleFunc("GET /build", s.handlerBuild)
+	m.HandleFunc("POST /build", s.handlerBuild)
+	m.HandleFunc("GET /builds", s.handlerBuilds)
+	m.HandleFunc("GET /stdout", s.handlerStdout)
 
 	// TODO: add cache headers
 	st, _ := fs.Sub(s.Static, "static")

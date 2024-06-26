@@ -20,7 +20,7 @@ type buildArgs struct {
 	Branches []string
 }
 
-func (s *Server) hndBuild(w http.ResponseWriter, r *http.Request) {
+func (s *Server) handlerBuild(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	args := buildArgs{}
 	if err := s.build(ctx, r, &args); err != nil {
