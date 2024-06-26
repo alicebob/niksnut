@@ -20,7 +20,7 @@ type stdoutArgs struct {
 func (s *Server) handlerStdout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	args := stdoutArgs{}
-	if err := s.stdoud(ctx, r, &args); err != nil {
+	if err := s.stdout(ctx, r, &args); err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte(err.Error()))
 		return
@@ -55,7 +55,7 @@ func (s *Server) handlerStdout(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Server) stdoud(ctx context.Context, r *http.Request, args *stdoutArgs) error {
+func (s *Server) stdout(ctx context.Context, r *http.Request, args *stdoutArgs) error {
 	id := r.FormValue("buildid")
 	build, err := niks.LoadBuild(s.BuildsDir, id)
 	if err != nil {

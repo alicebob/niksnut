@@ -60,6 +60,14 @@ func TestMux(t *testing.T) {
 		require.Contains(t, res.Body.String(), "ssh version")
 	})
 
+	t.Run("stream", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/stream?buildid=20240625T202158_hello", nil)
+		res := httptest.NewRecorder()
+		m.ServeHTTP(res, req)
+		require.Equal(t, 200, res.Code)
+		require.Contains(t, res.Body.String(), "ssh version")
+	})
+
 	t.Run("static", func(t *testing.T) {
 		req := httptest.NewRequest("GET", "/static/s.css", nil)
 		res := httptest.NewRecorder()

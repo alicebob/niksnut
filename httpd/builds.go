@@ -11,10 +11,11 @@ type buildsArgs struct {
 	Error string
 	// Project niks.Project
 	// Branch  string
-	BuildID string
-	Build   niks.Build
-	Status  niks.Status
-	Stdout  string
+	BuildID      string
+	Build        niks.Build
+	Status       niks.Status
+	Stdout       string
+	StreamOffset int
 }
 
 func (s *Server) handlerBuilds(w http.ResponseWriter, r *http.Request) {
@@ -36,5 +37,6 @@ func (s *Server) builds(ctx context.Context, r *http.Request, args *buildsArgs) 
 	args.Build = *build
 	args.Status = build.Status()
 	args.Stdout = build.Stdout()
+	args.StreamOffset = len(args.Stdout)
 	return nil
 }

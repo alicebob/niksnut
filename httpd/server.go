@@ -35,6 +35,7 @@ func (s *Server) Mux() *http.ServeMux {
 	m.HandleFunc("POST /build", s.handlerBuild)
 	m.HandleFunc("GET /builds", s.handlerBuilds)
 	m.HandleFunc("GET /stdout", s.handlerStdout)
+	m.HandleFunc("GET /stream", s.handlerStream)
 
 	// TODO: add cache headers
 	st, _ := fs.Sub(s.Static, "static")

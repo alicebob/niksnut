@@ -24,11 +24,11 @@
 			</div>
 			<div>
 			{{if not $b.Done}}
-				{{showstatus "running"}}
+				{{showstatus "running" "Running"}}
 			{{else if $b.Success}}
-				{{showstatus "success"}}
+				{{showstatus "success" "Success"}}
 			{{else}}
-				{{showstatus "failed"}}
+				{{showstatus "failed" "Failed"}}
 			{{end}}
 			</div>
 			<div>

@@ -15,17 +15,17 @@
 		<label>Start</label><note>{{datetime .Start}}</note>
 		<label>Done:</label><note>
 			{{if not .Done}}
-				{{showstatus "running"}}
+				{{showstatus "running" "Running"}}
 			{{else}}
-				{{showstatus "success"}}
+				{{showstatus "success" "Done"}}
 			{{end}}
 		</note>
 		{{if .Done}}
 			<label>Success</label><note>
 				{{if .Success}}
-					{{showstatus "success"}}
+					{{showstatus "success" "Success"}}
 				{{else}}
-					{{showstatus "failed"}}
+					{{showstatus "failed" "Failed"}}
 				{{end}}
 			</note>
 			<label>Error</label><note>{{with .Error}}{{.}}{{else}}(none){{end}}</note>
@@ -37,9 +37,23 @@
 	<div>
 		<a href="./stdout?buildid={{.BuildID}}">Raw text output</a> - 
 		<a href="./stdout?buildid={{.BuildID}}&tail=-f">tail -f</a>
-	<pre>
-		{{- .Stdout}}
-	</pre>
+	<pre id="stdout">{{.Stdout}}</pre>
+	{{if not .Status.Done}}
+	<script>
+		// stream stdout with event-stream. These are basically
+		// websocket-light. If you don't have JS you'll have to reload the
+		// page, or check out the "tail -f" option.
+		const src = new EventSource("./stream?buildid={{.BuildID}}&offset={{.StreamOffset}}");
+		src.onmessage = (event) => {
+			document.getElementById("stdout").innerText += event.data + "\n";
+		};
+		src.addEventListener("finished", (event) => {
+			src.close();
+			// the event has some json with the final status, but reloading is much easier.
+			document.location.reload();
+		});
+	</script>
+	{{end}}
 	</div>
 {{end}}
 </main>
