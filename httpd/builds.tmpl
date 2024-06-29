@@ -1,4 +1,6 @@
-{{define "title"}}builds todo{{end}}
+{{define "title"}}
+{{with project .Status.ProjectID}}{{.Name}}{{else}}(removed project){{end}} - {{.Status.Branch}}
+{{end}}
 {{define "main"}}
 <main>
 
@@ -9,51 +11,57 @@
 	<h2>Build</h2>
 	<div>
 	<div class="define">
-		<label>Build</label><note>{{.BuildID}}!</note>
-	{{with .Status}}
-		<label>Branch</label><note>{{.Branch}}</note>
-		<label>Start</label><note>{{datetime .Start}}</note>
-		<label>Done:</label><note>
-			{{if not .Done}}
-				{{showstatus "running" "Running"}}
-			{{else}}
-				{{showstatus "success" "Done"}}
-			{{end}}
+		<label>Project</label><note>
+			{{with project .Status.ProjectID}}{{.Name}}{{else}}(removed project){{end}}
 		</note>
-		{{if .Done}}
-			<label>Success</label><note>
-				{{if .Success}}
-					{{showstatus "success" "Success"}}
+		<label>Branch</label><note>{{.Status.Branch}}</note>
+		<label>Build</label><note>{{.BuildID}}</note>
+		{{with .Status}}
+			<label>Start</label><note>{{datetime .Start}}</note>
+			<label>Duration</label><note>{{if .Done}}{{duration (.Finish.Sub .Start)}}{{end}}</note>
+			<label>Done</label><note>
+				{{if not .Done}}
+					{{showstatus "running" "Running"}}
 				{{else}}
-					{{showstatus "failed" "Failed"}}
+					{{showstatus "success" "Done"}}
 				{{end}}
 			</note>
-			<label>Error</label><note>{{with .Error}}{{.}}{{else}}(none){{end}}</note>
-		{{end}}
+			{{if .Done}}
+				<label>Success</label><note>
+					{{if .Success}}
+						{{showstatus "success" "Success"}}
+					{{else}}
+						{{showstatus "failed" "Failed"}}
+					{{end}}
+				</note>
+				<label>Error</label><note>{{with .Error}}{{.}}{{else}}(none){{end}}</note>
+			{{end}}
 		{{end}}
 	</div>
 	</div>
 	<h2>Stdout:</h2>
 	<div>
-		<a href="./stdout?buildid={{.BuildID}}">Raw text output</a> - 
+		<a href="./stdout?buildid={{.BuildID}}">raw text</a> - 
 		<a href="./stdout?buildid={{.BuildID}}&tail=-f">tail -f</a>
-	<pre id="stdout">{{.Stdout}}</pre>
-	{{if not .Status.Done}}
-	<script>
-		// stream stdout with event-stream. These are basically
-		// websocket-light. If you don't have JS you'll have to reload the
-		// page, or check out the "tail -f" option.
-		const src = new EventSource("./stream?buildid={{.BuildID}}&offset={{.StreamOffset}}");
-		src.onmessage = (event) => {
-			document.getElementById("stdout").innerText += event.data + "\n";
-		};
-		src.addEventListener("finished", (event) => {
-			src.close();
-			// the event has some json with the final status, but reloading is much easier.
-			document.location.reload();
-		});
-	</script>
-	{{end}}
+		<pre id="stdout">{{.Stdout}}</pre>
+		<a href="./build?projid={{.Status.ProjectID}}">new build</a> -
+		<a href="./build?projid={{.Status.ProjectID}}&branch={{.Status.Branch}}">new build same branch</a>
+		{{if not .Status.Done}}
+			<script>
+			// stream stdout with event-stream. These are basically
+			// websocket-light. If you don't have JS you'll have to reload the
+			// page, or check out the "tail -f" option.
+			const src = new EventSource("./stream?buildid={{.BuildID}}&offset={{.StreamOffset}}");
+			src.onmessage = (event) => {
+				document.getElementById("stdout").innerText += event.data + "\n";
+			};
+			src.addEventListener("finished", (event) => {
+				src.close();
+				// the event has some json with the final status, but reloading is much easier.
+				document.location.reload();
+			});
+		</script>
+		{{end}}
 	</div>
 {{end}}
 </main>

@@ -8,9 +8,7 @@ import (
 )
 
 type buildsArgs struct {
-	Error string
-	// Project niks.Project
-	// Branch  string
+	Error        string
 	BuildID      string
 	Build        niks.Build
 	Status       niks.Status

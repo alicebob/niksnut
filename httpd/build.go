@@ -3,7 +3,7 @@ package httpd
 import (
 	"cmp"
 	"context"
-	"fmt"
+	"log/slog"
 	"net/http"
 	"sort"
 
@@ -20,6 +20,8 @@ type buildArgs struct {
 	Branches []string
 }
 
+// /build?projid=hello
+// starts a new build
 func (s *Server) handlerBuild(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	args := buildArgs{}
@@ -36,21 +38,24 @@ func (s *Server) build(ctx context.Context, r *http.Request, args *buildArgs) er
 		return err
 	}
 	args.ProjID = id
-	args.Branch = def(r.FormValue("branch"), "main")
+	args.Branch = r.FormValue("branch")
 	args.Page = r.FormValue("page")
 
 	switch args.Page {
 	case "build":
 		build, err := niks.SetupBuild(s.BuildsDir, args.Project)
 		if err != nil {
-			return nil
+			return err
 		}
 		args.BuildID = build.ID
 		go func() {
 			// fixme: waitgroup
-			// fixme: logs
 			if err := build.Run(s.BuildsDir, args.Project, args.Branch); err != nil {
-				fmt.Printf("build: %s\n", err.Error())
+				slog.Error("build failed",
+					"project", args.Project,
+					"branch", args.Branch,
+					"error", err,
+				)
 			}
 		}()
 	case "":
@@ -64,16 +69,7 @@ func (s *Server) build(ctx context.Context, r *http.Request, args *buildArgs) er
 	return nil
 }
 
-func def[A comparable](v, d A) A {
-	var zero A
-	if v == zero {
-		return d
-	}
-	return v
-}
-
 // Order branches, with "main" or "master" first.
-// (we should get from git what that branch is)
 func mainFirst(bs []string) {
 	sort.Slice(bs, func(i, j int) bool {
 		if bs[i] == "main" || bs[i] == "master" {

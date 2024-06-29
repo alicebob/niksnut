@@ -1,14 +1,12 @@
 package niks
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
-	"strings"
 	"time"
 )
 
@@ -18,11 +16,13 @@ type (
 		Path string // with trailing /
 	}
 	Status struct {
-		Branch  string    `json:"branch"`
-		Start   time.Time `json:"start"`
-		Done    bool      `json:"done"`
-		Success bool      `json:"success"`
-		Error   string    `json:"error"`
+		ProjectID string    `json:"projId"`
+		Branch    string    `json:"branch"`
+		Start     time.Time `json:"start"`
+		Finish    time.Time `json:"finish"`
+		Done      bool      `json:"done"`
+		Success   bool      `json:"success"`
+		Error     string    `json:"error"`
 		// ExitCode int
 	}
 )
@@ -143,14 +143,16 @@ func (b *Build) WriteStatus(s Status) error {
 //	        ./status.json
 func (b *Build) Run(root string, p Project, branch string) error {
 	s := Status{
-		Branch: branch,
-		Start:  time.Now().UTC(),
+		ProjectID: p.ID,
+		Branch:    branch,
+		Start:     time.Now().UTC(),
 	}
 	if err := b.WriteStatus(s); err != nil {
 		return err
 	}
 	defer func() {
 		s.Done = true
+		s.Finish = time.Now().UTC()
 		b.WriteStatus(s)
 	}()
 
@@ -162,36 +164,15 @@ func (b *Build) Run(root string, p Project, branch string) error {
 	}
 	defer stdout.Close()
 
-	call := func(cmd string, args ...string) (string, error) {
-		stderr := &bytes.Buffer{}
-		exe := exec.Command(cmd, args...)
-		exe.Stderr = stderr
-		exe.Dir = work
-		stdout.WriteString("$ " + exe.String() + "\n")
-		out, err := exe.Output()
-		if err != nil {
-			stdout.Write(stderr.Bytes())
-			s.Error = fmt.Sprintf("%s: %s", cmd, err.Error())
-		}
-		stdout.Write(out)
-		return string(out), err
-	}
-
 	if err := Checkout(root, p.Git, work, branch); err != nil {
-		return nil
+		s.Error = fmt.Sprintf("checkout: %s", err.Error())
+		return nil // returns not an error
 	}
 
-	// TODO: move to niks lib and/or return from niks.Checkout().
-	fullRev, err := call(cmdGit, "rev-parse", "HEAD")
+	fullRev, shortRev, err := GitRev(work)
 	if err != nil {
-		return nil
+		return err
 	}
-	fullRev = strings.TrimSpace(fullRev)
-	shortRev, err := call(cmdGit, "rev-parse", "--short", "HEAD")
-	if err != nil {
-		return nil
-	}
-	shortRev = strings.TrimSpace(shortRev)
 
 	{
 		exe := exec.Command(cmdNixBuild, "-A", p.Attribute)
@@ -205,6 +186,7 @@ func (b *Build) Run(root string, p Project, branch string) error {
 			return nil
 		}
 	}
+
 	if p.Post != "" {
 		args := []string{}
 		if len(p.Packages) > 0 {

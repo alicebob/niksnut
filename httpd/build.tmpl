@@ -1,4 +1,6 @@
-{{define "title"}}build todo{{end}}
+{{define "title"}}
+new build: {{with project .ProjID}}{{.Name}}{{else}}(removed project){{end}}
+{{end}}
 {{define "main"}}
 <main>
 
@@ -9,26 +11,28 @@
 	{{if eq .Page "build"}}
 		<h2>Build</h2>
 		<div>
-			Building: <a href="./builds?buildid={{.BuildID}}">{{.BuildID}}</a>!<br />
+			Building: <a href="./builds?buildid={{.BuildID}}">{{.BuildID}}</a><br />
 			<br />
 			<a href="./">back</a>	
 		</div>
 	{{else}}
 		<h2>New Build</h2>
-		<div>
-			Project: {{.Project.Name}}<br />
-			Repo: {{.Project.Git}}<br />
+		<div class="define">
+			<label>Project</label><note>{{.Project.Name}}</note>
+			<label>Repo</label><note>{{.Project.Git}}</note>
 		</div>
-		<h2>Branch</h2>
-		<div>
-			<form method="POST" action="./build">
-			<input type="hidden" name="projid" value="{{.ProjID}}" />
-			{{range $i, $b := .Branches}}
-			<label><input type="radio" name="branch" value="{{$b}}" {{if eq $i 0}}checked{{end}}/> {{.}}</label><br />
-			{{end}}
-			<button name="page" value="build">Build!</a>
-			</form>
-		</div>
+		{{if not .Error}}
+			<h2>Branch</h2>
+			<div>
+				<form method="POST" action="./build">
+				<input type="hidden" name="projid" value="{{.ProjID}}" />
+				{{range $i, $b := .Branches}}
+				<label><input type="radio" name="branch" value="{{$b}}" {{if eq $i 0}}checked{{end}}/> {{.}}</label><br />
+				{{end}}
+				<button name="page" value="build">Build!</a>
+				</form>
+			</div>
+		{{end}}
 	{{end}}
 {{end}}
 </div>

@@ -7,6 +7,8 @@ import (
 	"html/template"
 	"io/fs"
 	"net/http"
+
+	"github.com/alicebob/niksnut/niks"
 )
 
 func (s *Server) rootTemplate() *template.Template {
@@ -15,6 +17,14 @@ func (s *Server) rootTemplate() *template.Template {
 		"showstatus": showstatus,
 		"radio":      htmlRadio,
 		"datetime":   datetime,
+		"duration":   duration,
+		"project": func(projID string) *niks.Project {
+			var p niks.Project
+			if err := s.loadProject(projID, &p); err != nil {
+				return nil
+			}
+			return &p
+		},
 		// ...
 	})
 	return template.Must(root.ParseFS(s.Root, "root.tmpl"))

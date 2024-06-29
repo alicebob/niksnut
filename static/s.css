@@ -105,16 +105,25 @@ pre {
   padding: 5px 5px;
 }
 .build > div:nth-child(1) {
+  /* build id */
   flex: 2 1 0;
 }
 .build > div:nth-child(2) {
+  /* status */
   width: 100px;
 }
 .build > div:nth-child(3) {
+  /* branch */
   width: 100px;
 }
 .build > div:nth-child(4) {
+  /* created */
   width: 180px;
+}
+.build > div:nth-child(5) {
+  /* duration */
+  width: 80px;
+  text-align: right;
 }
 
 .define {
@@ -125,6 +134,10 @@ pre {
 }
 .define > label {
   grid-column: labels;
+}
+
+#stdout {
+  margin-bottom: 0;
 }
 
 @media screen and (min-width: 576px) {

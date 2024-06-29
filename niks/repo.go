@@ -36,6 +36,5 @@ func Checkout(root, repoURL, dest, branch string) error {
 		return err
 	}
 
-	// TODO: return stderr somehow
 	return GitCloneLocal(bare, dest, branch)
 }

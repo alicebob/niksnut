@@ -1,4 +1,3 @@
-{{define "title"}}hello{{end}}
 {{define "main"}}
 
 <main>
@@ -36,6 +35,9 @@
 			</div>
 			<div>
 				{{datetime $b.Start}}
+			</div>
+			<div>
+				{{if $b.Done}}{{duration ($b.Finish.Sub $b.Start)}}{{end}}</note>
 			</div>
 		</div>
 	{{end}}

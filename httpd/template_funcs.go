@@ -16,10 +16,10 @@ func showerror(e string) template.HTML {
 	}
 	return template.HTML(fmt.Sprintf(
 		`
-                        <h2 class="error">Error</h2>
-                        <span class="error">- %s</span><br />
-                        <br />
-                        <br />
+			<h2>Error</h2>
+			<div class="col col1">
+                        %s
+			</div>
                     `,
 		template.HTMLEscapeString(e),
 	))
@@ -62,4 +62,13 @@ func datetime(t time.Time) template.HTML {
 		return "-"
 	}
 	return template.HTML(fmt.Sprintf(`<span onmouseover="hoverLocaltime(this)">%s</span>`, t.UTC().Format(BrowserTimeFormat)))
+}
+
+func duration(t time.Duration) string {
+	if t <= 0 {
+		return ""
+	}
+	// I prefer to show the same unit everywhere, easier to compare.
+	return fmt.Sprintf("%.02fs", t.Seconds())
+	// return t.Truncate(10 * time.Millisecond).String()
 }

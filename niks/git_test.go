@@ -1,8 +1,10 @@
 package niks
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -21,7 +23,7 @@ func TestGit(t *testing.T) {
 			repo := "https://github.com/alicebob/gohellonosuch"
 			dest := barePath(root, repo)
 			err := GitCloneBare(dest, repo)
-			require.EqualError(t, err, "exit status 128")
+			require.EqualError(t, err, "git: could not read Username for 'https://github.com': terminal prompts disabled")
 		})
 
 		t.Run("fine", func(t *testing.T) {
@@ -56,6 +58,13 @@ func TestGit(t *testing.T) {
 		require.NoError(t, GitRemoteUpdate(dest))
 	})
 
+	t.Run("revision", func(t *testing.T) {
+		full, short, err := GitRev(dest)
+		require.NoError(t, err)
+		require.True(t, strings.HasPrefix(full, short))
+		require.NotEqual(t, full, short)
+	})
+
 	t.Run("branches", func(t *testing.T) {
 		bs, err := GitBranches(dest)
 		require.NoError(t, err)
@@ -63,4 +72,38 @@ func TestGit(t *testing.T) {
 		require.Contains(t, bs, "myfirstbranch")
 		require.NotContains(t, bs, "")
 	})
+}
+
+func TestGitError(t *testing.T) {
+	err := errors.New("some error")
+
+	// git clone https://exampleeeeee.com /tmp/bzz
+	require.EqualError(t,
+		gitError(err,
+			`Cloning into '/tmp/bzz'...
+fatal: unable to access 'https://exampleeeeee.com/': Could not resolve host: exampleeeeee.com
+`,
+		),
+		"git: unable to access 'https://exampleeeeee.com/': Could not resolve host: exampleeeeee.com",
+	)
+
+	// git clone weirdproto://example.com /tmp/bzz
+	require.EqualError(t,
+		gitError(err,
+			`Cloning into '/tmp/bzz'...
+git: 'remote-weirdproto' is not a git command. See 'git --help'.
+`,
+		),
+		"git: 'remote-weirdproto' is not a git command. See 'git --help'.",
+	)
+
+	// git clone weirdproto://example.com /tmp/
+
+	require.EqualError(t,
+		gitError(err,
+			`fatal: destination path '/tmp' already exists and is not an empty directory.
+`,
+		),
+		"git: destination path '/tmp' already exists and is not an empty directory.",
+	)
 }

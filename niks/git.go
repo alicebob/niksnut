@@ -51,7 +51,7 @@ func GitCloneBare(dest, repoURL string) error {
 			"stdout", stdout,
 			"error", err,
 		)
-		return err
+		return gitError(err, string(stdout))
 	}
 	return nil
 }
@@ -70,7 +70,7 @@ func GitRemoteUpdate(repo string) error {
 			"stdout", stdout,
 			"error", err,
 		)
-		return err
+		return gitError(err, string(stdout))
 	}
 	return nil
 }
@@ -85,9 +85,36 @@ func GitCloneLocal(src, dest, branch string) error {
 			"stdout", stdout,
 			"error", err,
 		)
-		return err
+		return gitError(err, string(stdout))
 	}
 	return nil
+}
+
+// Returns full and short revision hashes.
+func GitRev(src string) (string, string, error) {
+	exe := exec.Command(cmdGit, "rev-parse", "HEAD", "--short", "HEAD")
+	exe.Dir = src
+	stdout, err := exe.CombinedOutput()
+	if err != nil {
+		slog.Error("git rev-parse",
+			"cmd", exe.String(),
+			"stdout", stdout,
+			"error", err,
+		)
+		return "", "", gitError(err, string(stdout))
+	}
+
+	var full, short string
+	lines := strings.Split(string(stdout), "\n")
+	if len(lines) > 0 {
+		full = strings.TrimSpace(lines[0])
+		lines = lines[1:]
+	}
+	if len(lines) > 0 {
+		short = strings.TrimSpace(lines[0])
+		lines = lines[1:]
+	}
+	return full, short, nil
 }
 
 func GitBranches(src string) ([]string, error) {
@@ -100,8 +127,9 @@ func GitBranches(src string) ([]string, error) {
 			"stdout", stdout,
 			"error", err,
 		)
-		return nil, err
+		return nil, gitError(err, string(stdout))
 	}
+
 	var bs []string
 	for _, b := range strings.Split(string(stdout), "\n") {
 		br := strings.TrimSpace(b)
@@ -110,4 +138,17 @@ func GitBranches(src string) ([]string, error) {
 		}
 	}
 	return bs, nil
+}
+
+// try to get a nice error from git error messages. err is the fallback.
+func gitError(err error, stdout string) error {
+	if _, cdr, ok := strings.Cut(stdout, "fatal: "); ok {
+		cdr = strings.TrimSpace(cdr)
+		return fmt.Errorf("git: %s", cdr)
+	}
+	if _, cdr, ok := strings.Cut(stdout, "git: "); ok {
+		cdr = strings.TrimSpace(cdr)
+		return fmt.Errorf("git: %s", cdr)
+	}
+	return err
 }
