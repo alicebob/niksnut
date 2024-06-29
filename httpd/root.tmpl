@@ -3,7 +3,7 @@
 <html>
 <head>
   <title>{{block "title" .}}niksnut{{end}}</title>
-  <link href="/static/s.css" rel="stylesheet" />
+  <link href="{{static "/static/s.css"}}" rel="stylesheet" />
   <script>
 function hoverLocaltime(elem) {
 	elem.title = "In your timezone: " + new Date(elem.innerText+"Z").toString();

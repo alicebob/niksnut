@@ -3,10 +3,13 @@ package httpd
 import (
 	"bytes"
 	"context"
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"html/template"
 	"io/fs"
 	"net/http"
+	"strings"
 
 	"github.com/alicebob/niksnut/niks"
 )
@@ -25,6 +28,7 @@ func (s *Server) rootTemplate() *template.Template {
 			}
 			return &p
 		},
+		"static": s.staticLink,
 		// ...
 	})
 	return template.Must(root.ParseFS(s.Root, "root.tmpl"))
@@ -36,6 +40,17 @@ func (s *Server) loadTemplate(ctx context.Context, name string) *template.Templa
 		panic(err)
 	}
 	return template.Must(s.rootTemplate().Parse(string(b)))
+}
+
+// returns link l but with ?sha1=foobar attached
+// This allows very strict cacheing headers, while still always getting the latest version in the client.
+func (s *Server) staticLink(l string) string {
+	bits, err := fs.ReadFile(s.Static, strings.TrimPrefix(l, "/"))
+	if err != nil {
+		panic(err)
+	}
+	sum := sha1.Sum(bits)
+	return l + "?sha1=" + hex.EncodeToString(sum[:])
 }
 
 func render(w http.ResponseWriter, t *template.Template, args interface{}) {

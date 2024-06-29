@@ -37,11 +37,17 @@ func (s *Server) Mux() *http.ServeMux {
 	m.HandleFunc("GET /stdout", s.handlerStdout)
 	m.HandleFunc("GET /stream", s.handlerStream)
 
-	// TODO: add cache headers
 	st, _ := fs.Sub(s.Static, "static")
-	m.Handle("GET /static/*", http.StripPrefix("/static/", http.FileServerFS(st)))
+	m.Handle("GET /static/*", http.StripPrefix("/static/", cache(http.FileServerFS(st))))
 
 	return m
+}
+
+func cache(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "public, max-age=9999, immutable")
+		next.ServeHTTP(w, r)
+	})
 }
 
 // helper to load project by an ID in handlers
