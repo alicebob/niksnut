@@ -1,8 +1,10 @@
 package httpd
 
 import (
+	"context"
 	"errors"
 	"io/fs"
+	"net"
 	"net/http"
 
 	"github.com/alicebob/niksnut/niks"
@@ -19,8 +21,9 @@ type Server struct {
 
 func (s *Server) Run() error {
 	h := &http.Server{
-		Addr:    s.Addr,
-		Handler: s.Mux(),
+		Addr:        s.Addr,
+		Handler:     s.Mux(),
+		ConnContext: s.setCtx,
 	}
 	err := h.ListenAndServe()
 	if errors.Is(err, http.ErrServerClosed) {
@@ -31,10 +34,10 @@ func (s *Server) Run() error {
 
 func (s *Server) Mux() *http.ServeMux {
 	m := http.NewServeMux()
-	m.HandleFunc("GET /{$}", s.setCtx(s.handlerIndex))
-	m.HandleFunc("GET /build", s.setCtx(s.handlerBuild))
-	m.HandleFunc("POST /build", s.setCtx(s.handlerBuild))
-	m.HandleFunc("GET /builds", s.setCtx(s.handlerBuilds))
+	m.HandleFunc("GET /{$}", s.handlerIndex)
+	m.HandleFunc("GET /build", s.handlerBuild)
+	m.HandleFunc("POST /build", s.handlerBuild)
+	m.HandleFunc("GET /builds", s.handlerBuilds)
 	m.HandleFunc("GET /stdout", s.handlerStdout)
 	m.HandleFunc("GET /stream", s.handlerStream)
 
@@ -51,12 +54,8 @@ func cache(next http.Handler) http.Handler {
 	})
 }
 
-func (s *Server) setCtx(next func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := niks.SetOffline(r.Context(), s.Offline)
-		r = r.WithContext(ctx)
-		next(w, r)
-	})
+func (s *Server) setCtx(ctx context.Context, _ net.Conn) context.Context {
+	return niks.SetOffline(ctx, s.Offline)
 }
 
 // helper to load project by an ID in handlers

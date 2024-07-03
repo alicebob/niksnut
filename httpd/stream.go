@@ -57,7 +57,7 @@ loop:
 		fmt.Fprintf(w, "\n")
 		w.(http.Flusher).Flush()
 
-		if args.Build.Status().Done {
+		if s, _ := args.Build.Status(); s.Done {
 			break loop
 		}
 
@@ -68,10 +68,10 @@ loop:
 		}
 	}
 
-	// We end with a custom message with the final status, so the UI can update
-	// that (one day). At least it can stop connecting.
+	// We end with a custom message with the final status, so the UI could update
+	// that (it simple reloads when it gets the 'finished' event).
 	fmt.Fprintf(w, "event: finished\n")
-	st := args.Build.Status()
+	st, _ := args.Build.Status()
 	fmt.Fprintf(w, `data: {"done": %t, "success": %t}`, st.Done, st.Success)
 	fmt.Fprintf(w, "\n")
 	fmt.Fprintf(w, "\n")

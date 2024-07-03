@@ -44,7 +44,7 @@ func (s *Server) handlerStdout(w http.ResponseWriter, r *http.Request) {
 				break tail
 			case <-time.After(time.Second):
 			}
-			if args.Build.Status().Done {
+			if s, _ := args.Build.Status(); s.Done {
 				break tail
 			}
 			bs := args.Build.StdoutOffset(pos)

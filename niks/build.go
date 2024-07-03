@@ -95,15 +95,21 @@ func LoadBuild(root string, id string) (*Build, error) {
 	}, nil
 }
 
-func (b *Build) Status() Status {
+// Deleted the complete build dir (we don't keep a DB or anything, so that's
+// all).
+// Needs an untainted build ID (so it shouldn't come from the UI).
+func RemoveBuild(root string, buildID string) error {
+	p := buildPath(root, buildID)
+	return os.RemoveAll(p)
+}
+
+func (b *Build) Status() (Status, error) {
 	var s Status
 	bytes, err := os.ReadFile(b.Path + "status.json")
 	if err != nil {
-		s.Error = err.Error()
-		return s
+		return s, err
 	}
-	json.Unmarshal(bytes, &s)
-	return s
+	return s, json.Unmarshal(bytes, &s)
 }
 
 func (b *Build) Stdout() string {

@@ -33,7 +33,7 @@ func (s *Server) builds(ctx context.Context, r *http.Request, args *buildsArgs) 
 	}
 	args.BuildID = id
 	args.Build = *build
-	args.Status = build.Status()
+	args.Status, _ = build.Status()
 	args.Stdout = build.Stdout()
 	args.StreamOffset = len(args.Stdout)
 	return nil

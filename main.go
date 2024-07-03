@@ -6,10 +6,13 @@ import (
 	"flag"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
+	"time"
 
 	"github.com/alicebob/niksnut/httpd"
 	"github.com/alicebob/niksnut/niks"
@@ -23,12 +26,13 @@ var (
 var (
 	defaultListen    = "localhost:3141"
 	defaultBuildsDir = "./builds/"
+
+	MaxBuildAge = 4 * 24 * time.Hour
 )
 
 func main() {
 	cli := parseFlags()
-	// slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, nil)))
-	// slog.Info("hello.")
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, nil))) // TODO: different in httpd mode?
 
 	if cli.command == "help" {
 		fmt.Printf(`usage: niksnut [--help] [--version] [--buildsdir=%s]
@@ -40,6 +44,7 @@ func main() {
 		fmt.Printf("   niksnut check\n")
 		fmt.Printf("   niksnut httpd [--listen=%s]\n", defaultListen)
 		fmt.Printf("   niksnut run <projectname> [<git branch>]\n")
+		fmt.Printf("   niksnut gc\n")
 		return
 	}
 	if cli.version {
@@ -87,7 +92,7 @@ func main() {
 			static = fs.FS(staticRoot)
 		)
 		if cli.devRoot != "" {
-			fmt.Printf("dev mode because -root is set.\n")
+			slog.Info("dev mode because -root is set.")
 			root = os.DirFS(cli.devRoot + "/httpd/")
 			static = os.DirFS(cli.devRoot + "/")
 		}
@@ -101,7 +106,12 @@ func main() {
 			Offline:   cli.offline,
 		}
 
-		fmt.Printf("starting httpd on %s\n", s.Addr)
+		wg := sync.WaitGroup{}
+		defer wg.Wait()
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		slog.Info("starting httpd", "addr", s.Addr)
 		go func() {
 			err := s.Run()
 			if err != nil {
@@ -109,10 +119,24 @@ func main() {
 				os.Exit(1)
 			}
 		}()
+
+		wg.Add(1)
+		go func() {
+			bgGC(ctx, s.BuildsDir)
+			wg.Done()
+		}()
+
 		sig := make(chan os.Signal, 1)
 		signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 		<-sig
+		cancel()
 
+	case "gc":
+		if cli.help {
+			fmt.Printf("usage: niksnut gc\nremoved old builds and runs nix-collect-garbage")
+			return
+		}
+		cliGC(cli.buildsDir)
 	}
 }
 
@@ -182,8 +206,8 @@ func parseFlags() *cliFlags {
 			fl.help = true
 			return fl
 		}
-	case "check":
-		fl.command = "check"
+	case "check", "gc":
+		fl.command = cmd
 		if len(f.Args()) != 1 {
 			fl.help = true
 			return fl
@@ -226,4 +250,29 @@ func cliRun(buildsDir string, config *niks.Config, projectID, branch string) {
 	}
 
 	fmt.Print(build.Stdout())
+}
+
+func cliGC(root string) {
+	ctx := context.Background()
+	err := niks.GarbageCollect(ctx, root, time.Now().UTC().Add(-MaxBuildAge))
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+}
+
+func bgGC(ctx context.Context, buildsDir string) {
+	// slog.Info("bg GC loop")
+	// defer slog.Info("bg GC loop done")
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(time.Minute):
+			keep := time.Now().UTC().Add(-MaxBuildAge)
+			if err := niks.GarbageCollect(ctx, buildsDir, keep); err != nil {
+				slog.Error("background GC run", "error", err)
+			}
+		}
+	}
 }

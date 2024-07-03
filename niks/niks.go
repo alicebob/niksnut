@@ -9,6 +9,7 @@ var (
 	cmdNixInstantiate = "nix-instantiate"
 	cmdNixBuild       = "nix-build"
 	cmdNixShell       = "nix-shell"
+	cmdNixGC          = "nix-collect-garbage"
 
 	ctxOffline = "niksoffline"
 )
