@@ -1,6 +1,7 @@
 package niks
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"strings"
@@ -13,11 +14,13 @@ func inInt() bool {
 
 // Either makes a new tmp dir which can be used in tests, or skips the test if INT isn't set
 // In verbose test (go test -v) the tmp dir isn't cleaned.
-func SetupInt(t *testing.T) string {
+func SetupInt(t *testing.T) (string, context.Context) {
 	if !inInt() {
 		t.Skip("integration test")
 	}
 	SetupLog(t)
+	ctx, cancel := context.WithCancel(context.Background())
+	t.Cleanup(cancel)
 
 	root, err := os.MkdirTemp("", "niksint")
 	if err != nil {
@@ -30,7 +33,7 @@ func SetupInt(t *testing.T) string {
 		}
 		os.RemoveAll(root)
 	})
-	return root
+	return root, ctx
 }
 
 // redirect slog output to testing.Log, which you only see on either error or "test -v"

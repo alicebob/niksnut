@@ -4,6 +4,7 @@ package niks
 // Some of these could be implemented with https://pkg.go.dev/github.com/go-git/go-git/v5#example-Clone but that's such a big tree of dependencies.
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"net/url"
@@ -38,8 +39,8 @@ func barePath(root, repoURL string) string {
 }
 
 // dest should come from RepoPath()
-func GitCloneBare(dest, repoURL string) error {
-	exe := exec.Command(cmdGit, "clone", "--bare", "--mirror", repoURL, dest)
+func GitCloneBare(ctx context.Context, dest, repoURL string) error {
+	exe := exec.CommandContext(ctx, cmdGit, "clone", "--bare", "--mirror", repoURL, dest)
 	exe.Env = []string{
 		"GIT_TERMINAL_PROMPT=0",
 		fmt.Sprintf("PATH=%s", os.Getenv("PATH")),
@@ -56,8 +57,8 @@ func GitCloneBare(dest, repoURL string) error {
 	return nil
 }
 
-func GitRemoteUpdate(repo string) error {
-	exe := exec.Command(cmdGit, "remote", "update", "--prune")
+func GitRemoteUpdate(ctx context.Context, repo string) error {
+	exe := exec.CommandContext(ctx, cmdGit, "remote", "update", "--prune")
 	exe.Dir = repo
 	exe.Env = []string{
 		"GIT_TERMINAL_PROMPT=0",
@@ -76,8 +77,8 @@ func GitRemoteUpdate(repo string) error {
 }
 
 // local clone of a bare clone
-func GitCloneLocal(src, dest, branch string) error {
-	exe := exec.Command(cmdGit, "clone", "--branch", branch, src, dest)
+func GitCloneLocal(ctx context.Context, src, dest, branch string) error {
+	exe := exec.CommandContext(ctx, cmdGit, "clone", "--branch", branch, src, dest)
 	stdout, err := exe.CombinedOutput()
 	if err != nil {
 		slog.Error("git clone",
@@ -91,8 +92,8 @@ func GitCloneLocal(src, dest, branch string) error {
 }
 
 // Returns full and short revision hashes.
-func GitRev(src string) (string, string, error) {
-	exe := exec.Command(cmdGit, "rev-parse", "HEAD", "--short", "HEAD")
+func GitRev(ctx context.Context, src string) (string, string, error) {
+	exe := exec.CommandContext(ctx, cmdGit, "rev-parse", "HEAD", "--short", "HEAD")
 	exe.Dir = src
 	stdout, err := exe.CombinedOutput()
 	if err != nil {
@@ -117,8 +118,8 @@ func GitRev(src string) (string, string, error) {
 	return full, short, nil
 }
 
-func GitBranches(src string) ([]string, error) {
-	exe := exec.Command(cmdGit, "for-each-ref", "--format", "%(refname:short)", "refs/heads/")
+func GitBranches(ctx context.Context, src string) ([]string, error) {
+	exe := exec.CommandContext(ctx, cmdGit, "for-each-ref", "--format", "%(refname:short)", "refs/heads/")
 	exe.Dir = src
 	stdout, err := exe.CombinedOutput()
 	if err != nil {

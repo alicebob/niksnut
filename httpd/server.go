@@ -14,6 +14,7 @@ type Server struct {
 	Root      fs.FS // templates
 	Static    fs.FS
 	Config    niks.Config
+	Offline   bool
 }
 
 func (s *Server) Run() error {
@@ -30,10 +31,10 @@ func (s *Server) Run() error {
 
 func (s *Server) Mux() *http.ServeMux {
 	m := http.NewServeMux()
-	m.HandleFunc("GET /{$}", s.handlerIndex)
-	m.HandleFunc("GET /build", s.handlerBuild)
-	m.HandleFunc("POST /build", s.handlerBuild)
-	m.HandleFunc("GET /builds", s.handlerBuilds)
+	m.HandleFunc("GET /{$}", s.setCtx(s.handlerIndex))
+	m.HandleFunc("GET /build", s.setCtx(s.handlerBuild))
+	m.HandleFunc("POST /build", s.setCtx(s.handlerBuild))
+	m.HandleFunc("GET /builds", s.setCtx(s.handlerBuilds))
 	m.HandleFunc("GET /stdout", s.handlerStdout)
 	m.HandleFunc("GET /stream", s.handlerStream)
 
@@ -47,6 +48,14 @@ func cache(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "public, max-age=9999, immutable")
 		next.ServeHTTP(w, r)
+	})
+}
+
+func (s *Server) setCtx(next func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := niks.SetOffline(r.Context(), s.Offline)
+		r = r.WithContext(ctx)
+		next(w, r)
 	})
 }
 

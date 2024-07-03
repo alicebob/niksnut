@@ -49,8 +49,10 @@ func (s *Server) build(ctx context.Context, r *http.Request, args *buildArgs) er
 		}
 		args.BuildID = build.ID
 		go func() {
+			// new context, we don't want to be tied to the HTTP request
+			ctx := niks.SetOffline(context.Background(), s.Offline) // FIXME: timeout
 			// fixme: waitgroup
-			if err := build.Run(s.BuildsDir, args.Project, args.Branch); err != nil {
+			if err := build.Run(ctx, s.BuildsDir, args.Project, args.Branch); err != nil {
 				slog.Error("build failed",
 					"project", args.Project,
 					"branch", args.Branch,
@@ -59,7 +61,7 @@ func (s *Server) build(ctx context.Context, r *http.Request, args *buildArgs) er
 			}
 		}()
 	case "":
-		br, err := niks.Branches(s.BuildsDir, args.Project.Git)
+		br, err := niks.Branches(ctx, s.BuildsDir, args.Project.Git)
 		if err != nil {
 			return err
 		}

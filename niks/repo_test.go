@@ -7,18 +7,18 @@ import (
 )
 
 func TestBranches(t *testing.T) {
-	root := SetupInt(t)
+	root, ctx := SetupInt(t)
 	repoURL := "https://github.com/alicebob/gohello"
 
 	{
-		branches, err := Branches(root, repoURL)
+		branches, err := Branches(ctx, root, repoURL)
 		require.NoError(t, err)
 		require.Contains(t, branches, "main")
 		require.NotContains(t, branches, "")
 	}
 	// again is fine
 	{
-		branches, err := Branches(root, repoURL)
+		branches, err := Branches(ctx, root, repoURL)
 		require.NoError(t, err)
 		require.Contains(t, branches, "main")
 		require.NotContains(t, branches, "")
@@ -26,8 +26,8 @@ func TestBranches(t *testing.T) {
 }
 
 func TestCheckout(t *testing.T) {
-	root := SetupInt(t)
+	root, ctx := SetupInt(t)
 	repoURL := "https://github.com/alicebob/gohello"
-	require.NoError(t, Checkout(root, repoURL, root+"/checkedout_main", "main"))
-	require.NoError(t, Checkout(root, repoURL, root+"/checkedout_myfirstbranch", "myfirstbranch"))
+	require.NoError(t, Checkout(ctx, root, repoURL, root+"/checkedout_main", "main"))
+	require.NoError(t, Checkout(ctx, root, repoURL, root+"/checkedout_myfirstbranch", "myfirstbranch"))
 }

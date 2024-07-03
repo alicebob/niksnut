@@ -1,6 +1,7 @@
 package niks
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -141,7 +142,7 @@ func (b *Build) WriteStatus(s Status) error {
 //	/runs/123/work/ -> checkout and PWD
 //	        ./stdout.txt
 //	        ./status.json
-func (b *Build) Run(root string, p Project, branch string) error {
+func (b *Build) Run(ctx context.Context, root string, p Project, branch string) error {
 	s := Status{
 		ProjectID: p.ID,
 		Branch:    branch,
@@ -164,18 +165,18 @@ func (b *Build) Run(root string, p Project, branch string) error {
 	}
 	defer stdout.Close()
 
-	if err := Checkout(root, p.Git, work, branch); err != nil {
+	if err := Checkout(ctx, root, p.Git, work, branch); err != nil {
 		s.Error = fmt.Sprintf("checkout: %s", err.Error())
 		return nil // returns not an error
 	}
 
-	fullRev, shortRev, err := GitRev(work)
+	fullRev, shortRev, err := GitRev(ctx, work)
 	if err != nil {
 		return err
 	}
 
 	{
-		exe := exec.Command(cmdNixBuild, "-A", p.Attribute)
+		exe := exec.CommandContext(ctx, cmdNixBuild, "-A", p.Attribute)
 		exe.Stdout = stdout
 		exe.Stderr = stdout
 		exe.Dir = work
@@ -201,7 +202,7 @@ func (b *Build) Run(root string, p Project, branch string) error {
 			"--keep", "SHORT_SHA",
 			"--run", p.Post,
 		)
-		exe := exec.Command(cmdNixShell, args...)
+		exe := exec.CommandContext(ctx, cmdNixShell, args...)
 		exe.Stdout = stdout
 		exe.Stderr = stdout
 		exe.Dir = work

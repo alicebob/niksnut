@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"flag"
 	"fmt"
@@ -31,7 +32,7 @@ func main() {
 
 	if cli.command == "help" {
 		fmt.Printf(`usage: niksnut [--help] [--version] [--buildsdir=%s]
-	       [--configfile=./config.nix] [--root=""]
+	       [--configfile=./config.nix] [--root=""] [--offline]
 	       <command> [--help] [<args>]
 `, defaultBuildsDir)
 		fmt.Printf("   niksnut help -- same as `niksnut --help`\n")
@@ -97,6 +98,7 @@ func main() {
 			Static:    static,
 			Config:    *config,
 			Addr:      cli.httpdListen,
+			Offline:   cli.offline,
 		}
 
 		fmt.Printf("starting httpd on %s\n", s.Addr)
@@ -122,6 +124,7 @@ type cliFlags struct {
 	httpdListen string
 	runProject  string
 	branch      string
+	offline     bool
 	help        bool
 	version     bool
 }
@@ -136,6 +139,7 @@ func parseFlags() *cliFlags {
 	f.StringVar(&fl.configFile, "config", "./config.nix", "config file (.nix)")
 	f.StringVar(&fl.buildsDir, "buildsdir", defaultBuildsDir, "builds and checkouts directory")
 	f.StringVar(&fl.devRoot, "root", "", "if empty, use embedded templates and /static/ files")
+	f.BoolVar(&fl.offline, "offline", false, "offline git")
 	f.BoolVar(&fl.help, "help", false, "run help")
 	f.BoolVar(&fl.version, "version", false, "show version")
 	if err := f.Parse(args); err != nil {
@@ -197,6 +201,7 @@ func parseFlags() *cliFlags {
 }
 
 func cliRun(buildsDir string, config *niks.Config, projectID, branch string) {
+	ctx := context.Background()
 	fmt.Printf("run of %s - %s:\n", projectID, branch)
 	var proj *niks.Project
 	for _, p := range config.Projects {
@@ -215,7 +220,7 @@ func cliRun(buildsDir string, config *niks.Config, projectID, branch string) {
 		fmt.Printf("error setting up build %s: %s\n", proj.ID, err)
 		os.Exit(1)
 	}
-	if err := build.Run(buildsDir, *proj, branch); err != nil {
+	if err := build.Run(ctx, buildsDir, *proj, branch); err != nil {
 		fmt.Printf("error running %s: %s\n", proj.ID, err)
 		os.Exit(1)
 	}

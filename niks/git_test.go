@@ -16,20 +16,20 @@ func TestRepoID(t *testing.T) {
 }
 
 func TestGit(t *testing.T) {
-	root := SetupInt(t)
+	root, ctx := SetupInt(t)
 
 	t.Run("clone remote", func(t *testing.T) {
 		t.Run("no such repo", func(t *testing.T) {
 			repo := "https://github.com/alicebob/gohellonosuch"
 			dest := barePath(root, repo)
-			err := GitCloneBare(dest, repo)
+			err := GitCloneBare(ctx, dest, repo)
 			require.EqualError(t, err, "git: could not read Username for 'https://github.com': terminal prompts disabled")
 		})
 
 		t.Run("fine", func(t *testing.T) {
 			repo := "https://github.com/alicebob/gohello"
 			dest := root + "/clone"
-			err := GitCloneBare(dest, repo)
+			err := GitCloneBare(ctx, dest, repo)
 			require.NoError(t, err)
 
 			// quick check if the repo is there
@@ -40,12 +40,12 @@ func TestGit(t *testing.T) {
 
 	repo := "https://github.com/alicebob/gohello"
 	dest := barePath(root, repo)
-	require.NoError(t, GitCloneBare(dest, repo))
+	require.NoError(t, GitCloneBare(ctx, dest, repo))
 
 	t.Run("clone local", func(t *testing.T) {
 		t.Run("fine", func(t *testing.T) {
 			local := fmt.Sprintf("%s/clonetest", root)
-			require.NoError(t, GitCloneLocal(dest, local, "main"))
+			require.NoError(t, GitCloneLocal(ctx, dest, local, "main"))
 
 			_, err := os.Stat(fmt.Sprintf("%s/.git/config", local))
 			require.NoError(t, err)
@@ -55,18 +55,18 @@ func TestGit(t *testing.T) {
 	})
 
 	t.Run("remote", func(t *testing.T) {
-		require.NoError(t, GitRemoteUpdate(dest))
+		require.NoError(t, GitRemoteUpdate(ctx, dest))
 	})
 
 	t.Run("revision", func(t *testing.T) {
-		full, short, err := GitRev(dest)
+		full, short, err := GitRev(ctx, dest)
 		require.NoError(t, err)
 		require.True(t, strings.HasPrefix(full, short))
 		require.NotEqual(t, full, short)
 	})
 
 	t.Run("branches", func(t *testing.T) {
-		bs, err := GitBranches(dest)
+		bs, err := GitBranches(ctx, dest)
 		require.NoError(t, err)
 		require.Contains(t, bs, "main")
 		require.Contains(t, bs, "myfirstbranch")

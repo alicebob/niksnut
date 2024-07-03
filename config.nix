@@ -39,5 +39,12 @@ in
       attribute = "gohello";
       post = ''Same thing just to have more projects'';
     }
+    {
+      id = "recursive";
+      name = "Team Builder";
+      git = "./";
+      attribute = "default";
+      post = ''ls result'';
+    }
   ];
 }
