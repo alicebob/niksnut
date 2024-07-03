@@ -70,10 +70,10 @@ func main() {
 		}
 	case "run":
 		if cli.help {
-			fmt.Printf("usage: niksnut run <projectid> [<git branch>]\n")
+			fmt.Printf("usage: niksnut run <projectid> <git branch>\n")
 			return
 		}
-		cliRun(cli.buildsDir, config, cli.runProject)
+		cliRun(cli.buildsDir, config, cli.runProject, cli.branch)
 	case "httpd":
 		if cli.help {
 			fmt.Printf("usage: niksnut httpd [--listen=%s]\n", defaultListen)
@@ -121,6 +121,7 @@ type cliFlags struct {
 	command     string
 	httpdListen string
 	runProject  string
+	branch      string
 	help        bool
 	version     bool
 }
@@ -152,12 +153,12 @@ func parseFlags() *cliFlags {
 	switch cmd {
 	case "run":
 		fl.command = "run"
-		if len(args) != 1 {
+		if len(args) != 2 {
 			fl.help = true
 			return fl
 		}
 		fl.runProject = args[0]
-		// optional branch name
+		fl.branch = args[1]
 	case "httpd":
 		fl.command = "httpd"
 		f := &flag.FlagSet{}
@@ -172,14 +173,14 @@ func parseFlags() *cliFlags {
 			return fl
 		}
 	case "version":
-		fl.command = "version"
-		if len(f.Args()) != 0 {
+		fl.version = true
+		if len(f.Args()) != 1 {
 			fl.help = true
 			return fl
 		}
 	case "check":
 		fl.command = "check"
-		if len(f.Args()) != 0 {
+		if len(f.Args()) != 1 {
 			fl.help = true
 			return fl
 		}
@@ -195,21 +196,29 @@ func parseFlags() *cliFlags {
 	return fl
 }
 
-func cliRun(buildsDir string, config *niks.Config, projectID string) {
-	fmt.Printf("run of %s:\n", projectID)
-	// fixme all
-	p := config.Projects[0]
-	branch := "main"
-	build, err := niks.SetupBuild(buildsDir, p)
+func cliRun(buildsDir string, config *niks.Config, projectID, branch string) {
+	fmt.Printf("run of %s - %s:\n", projectID, branch)
+	var proj *niks.Project
+	for _, p := range config.Projects {
+		if p.ID == projectID {
+			proj = &p
+			break
+		}
+	}
+	if proj == nil {
+		fmt.Printf("project not found\n")
+		os.Exit(1)
+	}
+
+	build, err := niks.SetupBuild(buildsDir, *proj)
 	if err != nil {
-		fmt.Printf("error setting up build %s: %s\n", p.ID, err)
+		fmt.Printf("error setting up build %s: %s\n", proj.ID, err)
 		os.Exit(1)
 	}
-	if err := build.Run(buildsDir, p, branch); err != nil {
-		fmt.Printf("error running %s: %s\n", p.ID, err)
+	if err := build.Run(buildsDir, *proj, branch); err != nil {
+		fmt.Printf("error running %s: %s\n", proj.ID, err)
 		os.Exit(1)
 	}
-	fmt.Printf("run of %s:\n", p.ID)
 
 	fmt.Print(build.Stdout())
 }

@@ -2,8 +2,7 @@ let
   sources = import ./build/default.nix;
   pkgs = import sources.nixpkgs { };
   gocache = pkgs.callPackage ./gocache.nix { };
-in
-{
+
   niksnut = pkgs.buildGoModule {
     name = "niksnut";
     buildInputs = [ gocache ];
@@ -22,7 +21,10 @@ in
     vendorHash = null; # uses ./vendor/
     doCheck = false;
   };
-
+in
+{
+  default = niksnut;
+  niksnut = niksnut;
   shell = pkgs.mkShellNoCC {
     packages = [
       pkgs.nixfmt-rfc-style
