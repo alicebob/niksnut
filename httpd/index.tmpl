@@ -4,11 +4,9 @@
 <div class="col col2a">
 	<h2>Projects:</h2>
 	<div>
-	<ul>
 	{{range .Config.Projects}}
-		<li><a href="./build?projid={{.ID}}">build</a>: {{.Name}}</li>
+		<a href="./build?projid={{.ID}}" class="buildlink"><div class="project">{{.Name}}</div></a>
 	{{end}}
-	</ul>
 	</div>
 </div>
 
@@ -17,10 +15,8 @@
 	<div>
 	{{range .Builds}}
 		{{ $b := .Status }}
+		<a href="./builds?buildid={{.ID}}" class="buildlink">
 		<div class="build">
-			<div>
-				<a href="./builds?buildid={{.ID}}">{{.ID}}</a>
-			</div>
 			<div>
 			{{if not $b.Done}}
 				{{showstatus "running" "Running"}}
@@ -31,15 +27,22 @@
 			{{end}}
 			</div>
 			<div>
+				{{with project $b.ProjectID}}{{.Name}}{{else}}[removed project]{{end}}
+			</div>
+			<div>
 				{{$b.Branch}}
+			</div>
+			<div>
+				{{$b.ShortRev}}
 			</div>
 			<div>
 				{{datetime $b.Start}}
 			</div>
 			<div>
-				{{if $b.Done}}{{duration ($b.Finish.Sub $b.Start)}}{{end}}</note>
+				{{if $b.Done}}{{duration ($b.Finish.Sub $b.Start)}}{{end}}
 			</div>
 		</div>
+		</a>
 	{{end}}
 	</div>
 </div>

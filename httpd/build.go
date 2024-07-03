@@ -5,6 +5,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"slices"
 	"sort"
 
 	"github.com/alicebob/niksnut/niks"
@@ -67,6 +68,12 @@ func (s *Server) build(ctx context.Context, r *http.Request, args *buildArgs) er
 		}
 		mainFirst(br)
 		args.Branches = br
+		if len(br) > 0 {
+			// set the default or check selection
+			if args.Branch == "" || !slices.Contains(args.Branches, args.Branch) {
+				args.Branch = br[0]
+			}
+		}
 	}
 	return nil
 }

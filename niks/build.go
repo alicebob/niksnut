@@ -19,6 +19,8 @@ type (
 	Status struct {
 		ProjectID string    `json:"projId"`
 		Branch    string    `json:"branch"`
+		Rev       string    `json:"rev"`
+		ShortRev  string    `json:"shortRev"`
 		Start     time.Time `json:"start"`
 		Finish    time.Time `json:"finish"`
 		Done      bool      `json:"done"`
@@ -174,6 +176,8 @@ func (b *Build) Run(ctx context.Context, root string, p Project, branch string) 
 	if err != nil {
 		return err
 	}
+	s.Rev = fullRev
+	s.ShortRev = shortRev
 
 	{
 		exe := exec.CommandContext(ctx, cmdNixBuild, "-A", p.Attribute)

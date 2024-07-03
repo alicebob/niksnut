@@ -41,6 +41,14 @@ main {
   flex-wrap: wrap;
 }
 
+a, a:visited {
+  text-decoration: underline;
+  color: #696989;
+}
+a:hover {
+  color: black;
+}
+
 .col > div {
   box-shadow: 3px 4px 4px 1px #f3ecec;
   border-radius: 5px;
@@ -62,13 +70,6 @@ main {
 .col2b {
   flex: 2;
   min-width: 600px;
-}
-ul {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-}
-ul > li:hover {
 }
 
 pre {
@@ -100,29 +101,56 @@ pre {
   background-color: #ec563a;
 }
 
+.project {
+  padding: 5px 5px;
+}
+.project:hover {
+    box-shadow: 3px 4px 4px 4px #ede5e5;
+    margin-right: -10px;
+    margin-left: -10px;
+    padding-left: 14px;
+    padding-right: 14px;
+    border-radius:0px;
+}
+
 .build {
   display: flex;
   padding: 5px 5px;
 }
-.build > div:nth-child(1) {
-  /* build id */
-  flex: 2 1 0;
+a.buildlink {
+	text-decoration: none;
 }
-.build > div:nth-child(2) {
+.build:hover {
+    box-shadow: 3px 4px 4px 4px #ede5e5;
+    margin-left: -10px;
+    padding-left: 14px;
+    margin-right: -10px;
+    padding-right: 14px;
+    border-radius:0px;
+}
+.build > div:nth-child(1) {
   /* status */
   width: 100px;
 }
+.build > div:nth-child(2) {
+  /* proj */
+  flex: 1 1 0;
+}
 .build > div:nth-child(3) {
   /* branch */
-  width: 100px;
+  flex: 1 1 0;
 }
 .build > div:nth-child(4) {
+  /* commit */
+  width: 80px;
+}
+.build > div:nth-child(5) {
   /* created */
   width: 180px;
 }
-.build > div:nth-child(5) {
+.build > div:nth-child(6) {
   /* duration */
-  width: 80px;
+  width: 60px;
   text-align: right;
 }
 

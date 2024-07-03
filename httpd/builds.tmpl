@@ -12,10 +12,11 @@
 	<div>
 	<div class="define">
 		<label>Project</label><note>
-			{{with project .Status.ProjectID}}{{.Name}}{{else}}(removed project){{end}}
+			{{with project .Status.ProjectID}}{{.Name}}{{else}}[removed project]{{end}}
 		</note>
+		<label>Build ID</label><note>{{.BuildID}}</note>
 		<label>Branch</label><note>{{.Status.Branch}}</note>
-		<label>Build</label><note>{{.BuildID}}</note>
+		<label>Revision</label><note>{{.Status.Rev}} (.Status.ShortRev)</note>
 		{{with .Status}}
 			<label>Start</label><note>{{datetime .Start}}</note>
 			<label>Duration</label><note>{{if .Done}}{{duration (.Finish.Sub .Start)}}{{end}}</note>
@@ -42,10 +43,10 @@
 	<h2>Stdout:</h2>
 	<div>
 		<a href="./stdout?buildid={{.BuildID}}">raw text</a> - 
-		<a href="./stdout?buildid={{.BuildID}}&tail=-f">tail -f</a>
-		<pre id="stdout">{{.Stdout}}</pre>
+		<a href="./stdout?buildid={{.BuildID}}&tail=-f">tail -f</a> -
 		<a href="./build?projid={{.Status.ProjectID}}">new build</a> -
 		<a href="./build?projid={{.Status.ProjectID}}&branch={{.Status.Branch}}">new build same branch</a>
+		<pre id="stdout">{{.Stdout}}</pre>
 		{{if not .Status.Done}}
 			<script>
 			// stream stdout with event-stream. These are basically
