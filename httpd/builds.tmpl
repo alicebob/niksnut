@@ -16,7 +16,7 @@
 		</note>
 		<label>Build ID</label><note>{{.BuildID}}</note>
 		<label>Branch</label><note>{{.Status.Branch}}</note>
-		<label>Revision</label><note>{{.Status.Rev}} (.Status.ShortRev)</note>
+		<label>Revision</label><note title="{{.Status.Rev}}">{{.Status.ShortRev}}</note>
 		{{with .Status}}
 			<label>Start</label><note>{{datetime .Start}}</note>
 			<label>Duration</label><note>{{if .Done}}{{duration (.Finish.Sub .Start)}}{{end}}</note>
