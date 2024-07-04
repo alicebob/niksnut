@@ -184,6 +184,7 @@ func (b *Build) Run(ctx context.Context, root string, p Project, branch string) 
 	}
 	s.Rev = fullRev
 	s.ShortRev = shortRev
+	b.WriteStatus(s)
 
 	{
 		exe := exec.CommandContext(ctx, cmdNixBuild, "-A", p.Attribute)
