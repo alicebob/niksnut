@@ -30,3 +30,7 @@ fmt:
 .PHONY: shell
 shell:
 	nix-shell
+
+.PHONY: check
+check:
+	make build && ./niksnut check

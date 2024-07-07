@@ -4,7 +4,12 @@
 <div class="col col2a">
 	<h2>Projects:</h2>
 	<div>
+	{{$lastCat := ""}}
 	{{range .Config.Projects}}
+		{{if and (ne .Category "") (ne .Category $lastCat)}}
+			<h2>{{.Category}}</h2>
+			{{$lastCat = .Category}}
+		{{end}}
 		<a href="./build?projid={{.ID}}" class="buildlink"><div class="project">{{.Name}}</div></a>
 	{{end}}
 	</div>

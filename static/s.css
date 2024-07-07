@@ -41,7 +41,8 @@ main {
   flex-wrap: wrap;
 }
 
-a, a:visited {
+a,
+a:visited {
   text-decoration: underline;
   color: #696989;
 }
@@ -57,6 +58,12 @@ a:hover {
   margin: 0 10% 30px 0;
   background-color: #ffffff;
   padding: 18px 10px;
+}
+
+.col > div > h2 {
+  font-size: 1rem;
+  padding: 0 0 0 5px;
+  margin: 10px 0 5px 0;
 }
 
 .col1 {
@@ -105,12 +112,12 @@ pre {
   padding: 5px 5px;
 }
 .project:hover {
-    box-shadow: 3px 4px 4px 4px #ede5e5;
-    margin-right: -10px;
-    margin-left: -10px;
-    padding-left: 14px;
-    padding-right: 14px;
-    border-radius:0px;
+  box-shadow: 3px 4px 4px 4px #ede5e5;
+  margin-right: -10px;
+  margin-left: -10px;
+  padding-left: 14px;
+  padding-right: 14px;
+  border-radius: 0px;
 }
 
 .build {
@@ -118,15 +125,15 @@ pre {
   padding: 5px 5px;
 }
 a.buildlink {
-	text-decoration: none;
+  text-decoration: none;
 }
 .build:hover {
-    box-shadow: 3px 4px 4px 4px #ede5e5;
-    margin-left: -10px;
-    padding-left: 14px;
-    margin-right: -10px;
-    padding-right: 14px;
-    border-radius:0px;
+  box-shadow: 3px 4px 4px 4px #ede5e5;
+  margin-left: -10px;
+  padding-left: 14px;
+  margin-right: -10px;
+  padding-right: 14px;
+  border-radius: 0px;
 }
 .build > div:nth-child(1) {
   /* status */

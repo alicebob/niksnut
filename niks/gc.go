@@ -32,9 +32,10 @@ func GarbageCollect(ctx context.Context, root string, keepAfter time.Time) error
 	}
 
 	if deleted > 0 {
-		if _, err := nixCollectGarbage(ctx); err != nil {
-			return err
-		}
+		// nig-gc is too eager, we have to redownload a lot
+		// if _, err := nixCollectGarbage(ctx); err != nil {
+		// return err
+		// }
 	}
 
 	return nil

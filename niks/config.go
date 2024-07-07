@@ -15,6 +15,7 @@ type (
 	Project struct {
 		ID        string   `json:"id"`
 		Name      string   `json:"name"`
+		Category  string   `json:"category"`
 		Git       string   `json:"git"`
 		Attribute string   `json:"attribute"`
 		Packages  []string `json:"packages"`

@@ -14,7 +14,6 @@ in
       git = repo;
       #nixfile = "/default.nix";
       attribute = "gohello";
-      # buildInputs = [pkgs.openssh];
       packages = [
         "which"
         "openssh"
@@ -30,18 +29,20 @@ in
         echo ENV: $(printenv)
         echo which ssh: $(which ssh)
         echo ssh version: $(ssh -V)
+        echo result: $(./result/bin/gohello)
       '';
     }
     {
       id = "hello2";
-      name = "Hello again!";
+      name = "Hello again - staging!";
       git = repo;
       attribute = "gohello";
-      post = ''Same thing just to have more projects'';
+      post = ''echo Same thing just to have more projects'';
     }
     {
       id = "recursive";
       name = "Team Builder";
+      category = "More examples";
       git = "./";
       attribute = "default";
       post = ''ls result'';
