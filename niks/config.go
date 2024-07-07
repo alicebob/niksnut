@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"regexp"
 )
 
 type (
@@ -34,5 +35,31 @@ func ReadConfig(f string) (*Config, error) {
 	}
 
 	var c Config
-	return &c, json.Unmarshal(out, &c)
+	if err := json.Unmarshal(out, &c); err != nil {
+		return nil, err
+	}
+	return &c, checkConfig(&c)
+}
+
+func checkConfig(c *Config) error {
+	seen := map[string]bool{}
+	for _, p := range c.Projects {
+		if !validID(p.ID) {
+			return fmt.Errorf("invalid project ID: %q", p.ID)
+		}
+		if seen[p.ID] {
+			return fmt.Errorf("repeated project ID: %s", p.ID)
+		}
+		seen[p.ID] = true
+	}
+
+	return nil
+}
+
+func validID(id string) bool {
+	match, err := regexp.MatchString(`^[a-zA-Z0-9.-]+$`, id)
+	if err != nil {
+		panic(err)
+	}
+	return match
 }
