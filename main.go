@@ -244,7 +244,7 @@ func cliRun(buildsDir string, config *niks.Config, projectID, branch string) {
 		fmt.Printf("error setting up build %s: %s\n", proj.ID, err)
 		os.Exit(1)
 	}
-	if err := build.Run(ctx, buildsDir, *proj, branch); err != nil {
+	if err := build.Run(ctx, buildsDir, *proj, branch, os.Getenv("USER")); err != nil {
 		fmt.Printf("error running %s: %s\n", proj.ID, err)
 		os.Exit(1)
 	}

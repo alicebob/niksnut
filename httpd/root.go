@@ -29,6 +29,7 @@ func (s *Server) rootTemplate() *template.Template {
 			return &p
 		},
 		"static": s.staticLink,
+		"config": func() niks.Config { return s.Config },
 		// ...
 	})
 	return template.Must(root.ParseFS(s.Root, "root.tmpl"))

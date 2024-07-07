@@ -2,10 +2,10 @@
 
 <main>
 <div class="col col2a">
-	<h2>Projects:</h2>
+	<h2>Projects</h2>
 	<div>
 	{{$lastCat := ""}}
-	{{range .Config.Projects}}
+	{{range config.Projects}}
 		{{if and (ne .Category "") (ne .Category $lastCat)}}
 			<h2>{{.Category}}</h2>
 			{{$lastCat = .Category}}
@@ -16,7 +16,7 @@
 </div>
 
 <div class="col col2b">
-	<h2>Builds:</h2>
+	<h2>Builds</h2>
 	<div>
 	{{range .Builds}}
 		{{ $b := .Status }}

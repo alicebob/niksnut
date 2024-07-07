@@ -18,7 +18,7 @@ func showerror(e string) template.HTML {
 		`
 			<h2>Error</h2>
 			<div class="col col1">
-                        %s
+                        Error: %s
 			</div>
                     `,
 		template.HTMLEscapeString(e),

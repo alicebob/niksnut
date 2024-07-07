@@ -6,8 +6,8 @@ new build: {{with project .ProjID}}{{.Name}}{{else}}(removed project){{end}}
 
 {{showerror .Error}}
 
-<div class="col col1">
 {{if .ProjID}}
+<div class="col col1">
 	{{if eq .Page "build"}}
 		<h2>Build</h2>
 		<div>
@@ -20,9 +20,10 @@ new build: {{with project .ProjID}}{{.Name}}{{else}}(removed project){{end}}
 		<div class="define">
 			<label>Project</label><note>{{.Project.Name}}</note>
 			<label>Repo</label><note>{{.Project.Git}}</note>
+			<label>Attribute</label><note>{{.Project.Attribute}}</note>
 		</div>
 		{{if not .Error}}
-			<h2>Branch</h2>
+			<h2>Git Branch</h2>
 			<div>
 				<form method="POST" action="./build">
 				<input type="hidden" name="projid" value="{{.ProjID}}" />
@@ -34,7 +35,7 @@ new build: {{with project .ProjID}}{{.Name}}{{else}}(removed project){{end}}
 			</div>
 		{{end}}
 	{{end}}
-{{end}}
 </div>
+{{end}}
 </main>
 {{end}}

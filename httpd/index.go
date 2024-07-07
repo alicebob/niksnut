@@ -9,15 +9,12 @@ import (
 )
 
 type indexArgs struct {
-	Config niks.Config
 	Builds []niks.Build
 }
 
 func (s *Server) handlerIndex(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	args := indexArgs{
-		Config: s.Config,
-	}
+	args := indexArgs{}
 	if err := s.index(ctx, &args); err != nil {
 		slog.Error("index", "error", err)
 	}

@@ -18,6 +18,7 @@ type (
 	}
 	Status struct {
 		ProjectID string    `json:"projId"`
+		User      string    `json:"user"`
 		Branch    string    `json:"branch"`
 		Rev       string    `json:"rev"`
 		ShortRev  string    `json:"shortRev"`
@@ -150,9 +151,10 @@ func (b *Build) WriteStatus(s Status) error {
 //	/runs/123/work/ -> checkout and PWD
 //	        ./stdout.txt
 //	        ./status.json
-func (b *Build) Run(ctx context.Context, root string, p Project, branch string) error {
+func (b *Build) Run(ctx context.Context, root string, p Project, branch, user string) error {
 	s := Status{
 		ProjectID: p.ID,
+		User:      user,
 		Branch:    branch,
 		Start:     time.Now().UTC(),
 	}
