@@ -2,11 +2,6 @@ let
   repo = "ssh://git@github.com/alicebob/gohello";
 in
 {
-  users = {
-    alice = { };
-    bob = { };
-    eve = { };
-  };
   projects = [
     {
       id = "hello";
@@ -45,7 +40,10 @@ in
       category = "More examples";
       git = "./";
       attribute = "default";
-      post = ''ls result'';
+      post = ''
+		ls result
+		./result/bin/niksnut version
+	  '';
     }
   ];
 }

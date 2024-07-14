@@ -36,7 +36,7 @@ func main() {
 
 	if cli.command == "help" {
 		fmt.Printf(`usage: niksnut [--help] [--version] [--buildsdir=%s]
-	       [--configfile=./config.nix] [--root=""] [--offline]
+	       [--config=./config.nix] [--root=""] [--offline]
 	       <command> [--help] [<args>]
 `, defaultBuildsDir)
 		fmt.Printf("   niksnut help -- same as `niksnut --help`\n")
