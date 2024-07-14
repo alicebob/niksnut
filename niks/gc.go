@@ -11,7 +11,7 @@ func GarbageCollect(ctx context.Context, root string, keepAfter time.Time) error
 	if err != nil {
 		return err
 	}
-	deleted := 0
+
 	for _, b := range bs {
 		st, err := b.Status()
 		if err != nil {
@@ -19,7 +19,6 @@ func GarbageCollect(ctx context.Context, root string, keepAfter time.Time) error
 			if err := RemoveBuild(root, b.ID); err != nil {
 				return err
 			}
-			deleted++
 			continue
 		}
 		if st.Start.Before(keepAfter) {
@@ -27,15 +26,7 @@ func GarbageCollect(ctx context.Context, root string, keepAfter time.Time) error
 			if err := RemoveBuild(root, b.ID); err != nil {
 				return err
 			}
-			deleted++
 		}
-	}
-
-	if deleted > 0 {
-		// nig-gc is too eager, we have to redownload a lot
-		// if _, err := nixCollectGarbage(ctx); err != nil {
-		// return err
-		// }
 	}
 
 	return nil
