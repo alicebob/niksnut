@@ -9,9 +9,9 @@ Main use case (for me) is on demand build+push+kubectl docker containers on stag
 ### Main reasons this exists:
 
  - security: we block access to kubectl from everywhere except our build server. There are also no automated incoming actions to the team builder, so it's easy to lock it down.
- - vanilla nix: this runs on a "proper" server, not on containers. You get all the advantages from Nix with a persistent store. No need to mess around with the nix store (e.g. attic or cachix). It also keeps the use of cache.nixos.org to a minimum, which is just polite.And it makes build pretty fast.
+ - vanilla nix: this runs on a "proper" server, not on containers. You get all the advantages from Nix with a persistent store. No need to mess around with the nix store (e.g. attic or cachix). It also keeps the use of cache.nixos.org to a minimum, which is just polite. And it makes build pretty fast.
 
-This is not a CI system, I use github actions to do CI, but for production deploys I need to be in control more.
+This is not a CI system, I use github actions to do CI, but for production deploys I need more control about what and when.
 
 
 ### Example flow
@@ -20,7 +20,7 @@ The core of a build is:
  - click in the UI which project and which branch you want
  - we do a checkout of the branch
  - it runs the configured nix attribute. This is essentially `nix-build -A [what you configured]`.
- - if that's done you run a shell script, which is essentially `nix-shell -P [what you configured] [your shell]
+ - if the main build is done this run the configured shell script, which is essentially `nix-shell -P [what you configured] [your shell]`. This can do scp or kubectl or whatever else you need.
 
 
 ### Nix
@@ -35,14 +35,14 @@ The GUI works 100% without Javascript. Some things are slightly nicer with it, b
 The CLI executable can also run builds, but it's not really intended as main thing (but you could use cron to schedule builds this way).
 
 
-Example of the main page, which has on the left the list of projects you configured, and on the right the builds:
-<img src="./docs/niksnut_index.png" width="400" />
+Example of the main page, which has on the left the list of projects you configured, and on the right the builds:<br />
+<img src="./docs/niksnut_index.png" width="400" /><br />
 
-Starting a new build goes by picking the branch you want:
-<img src="./docs/niksnut_newbuild.png" width="400" />
+Starting a new build goes by picking the branch you want:<br />
+<img src="./docs/niksnut_newbuild.png" width="400" /><br />
 
-A build has some basic meta data, and the stdout logs (which streams if you have JS enabled):
-<img src="./docs/niksnut_build.png" width="400" />
+A build has some basic meta data, and the stdout logs (which streams if you have JS enabled):<br />
+<img src="./docs/niksnut_build.png" width="400" /><br />
 
 
 
@@ -114,7 +114,9 @@ This never runs nix-collect-garbage.
 
 We run this on a Hetzner cloud machine, works well (no referral, just a happy customer): https://www.hetzner.com/cloud/ . The smallest Google Cloud machines are really too weak to run anything useful.
 
-See https://github.com/alicebob/gonix if you build Go programs a lot and want to speed that up.
+See https://github.com/alicebob/gonix if you build Go programs and want to speed that up.
+
+`crane` (`gcrane` if you run on Google cloud) is a nice util to push docker images you made with `pkgs.dockerTools.buildImage { ... }` to an image repository. Do use `compressor = "none";` to avoid unzipping with crane.
 
 
 ### Development
