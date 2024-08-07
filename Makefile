@@ -5,6 +5,7 @@ all: test build
 test:
 	go test ./...
 
+.PHONY: vendor
 vendor:
 	go mod tidy -compat=1.22
 	go mod vendor
@@ -34,3 +35,7 @@ shell:
 .PHONY: check
 check:
 	make build && ./niksnut check
+
+.PHONY: dev
+dev:
+	make build && ./niksnut -root=. httpd

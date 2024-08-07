@@ -45,8 +45,8 @@
 	<div>
 		<a href="./stdout?buildid={{.BuildID}}">raw text</a> - 
 		<a href="./stdout?buildid={{.BuildID}}&tail=-f">tail -f</a> -
-		<a href="./build?projid={{.Status.ProjectID}}">new build</a> -
-		<a href="./build?projid={{.Status.ProjectID}}&branch={{.Status.Branch}}">new build same branch</a>
+		<a href="./build?projid={{.Status.ProjectID}}">new build pick branch</a> -
+		<a href="./build?projid={{.Status.ProjectID}}&branch={{.Status.Branch}}&page=build">new build same branch</a>
 		<pre id="stdout">{{.Stdout}}</pre>
 		{{if not .Status.Done}}
 			<script>
