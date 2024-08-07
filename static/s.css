@@ -149,7 +149,7 @@ a.buildlink {
 }
 .build > div:nth-child(5) {
   /* created */
-  width: 180px;
+  width: 80px;
 }
 .build > div:nth-child(6) {
   /* duration */

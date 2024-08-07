@@ -4,17 +4,21 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/alicebob/niksnut/niks"
 )
 
 type indexArgs struct {
-	Builds []niks.Build
+	Builds       []niks.Build
+	TodayYearDay int // used to show day headers in the build list
 }
 
 func (s *Server) handlerIndex(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	args := indexArgs{}
+	args := indexArgs{
+		TodayYearDay: time.Now().UTC().YearDay(),
+	}
 	if err := s.index(ctx, &args); err != nil {
 		slog.Error("index", "error", err)
 	}

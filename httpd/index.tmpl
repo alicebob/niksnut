@@ -18,8 +18,13 @@
 <div class="col col2b">
 	<h2>Builds</h2>
 	<div>
+	{{ $prevDay := .TodayYearDay }}
 	{{range .Builds}}
 		{{ $b := .Status }}
+		{{ if ne $prevDay $b.Start.YearDay }}
+			<h2>{{$b.Start.Format "Monday, 2006-01-02"}}</h2>
+		{{end}}
+		{{ $prevDay = $b.Start.YearDay }}
 		<a href="./builds?buildid={{.ID}}" class="buildlink">
 		<div class="build">
 			<div>
@@ -41,13 +46,15 @@
 				{{$b.ShortRev}}
 			</div>
 			<div>
-				{{datetime $b.Start}}
+				{{$b.Start.Format "15:04:05"}}
 			</div>
 			<div>
 				{{if $b.Done}}{{duration ($b.Finish.Sub $b.Start)}}{{end}}
 			</div>
 		</div>
 		</a>
+	{{else}}
+		no builds
 	{{end}}
 	</div>
 </div>
