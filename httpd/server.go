@@ -42,7 +42,7 @@ func (s *Server) Mux() *http.ServeMux {
 	m.HandleFunc("GET /stream", s.handlerStream)
 
 	st, _ := fs.Sub(s.Static, "static")
-	m.Handle("GET /static/*", http.StripPrefix("/static/", cache(http.FileServerFS(st))))
+	m.Handle("GET /static/", http.StripPrefix("/static/", http.FileServerFS(st)))
 
 	return m
 }

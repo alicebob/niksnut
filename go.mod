@@ -1,6 +1,6 @@
 module github.com/alicebob/niksnut
 
-go 1.22.0
+go 1.23.0
 
 require (
 	github.com/jba/templatecheck v0.7.0

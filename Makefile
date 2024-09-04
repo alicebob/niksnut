@@ -39,3 +39,7 @@ check:
 .PHONY: dev
 dev:
 	make build && ./niksnut -root=. httpd
+
+.PHONY: run
+run:
+	make build && ./niksnut httpd
