@@ -19,8 +19,8 @@ github.com/pmezard/go-difflib/difflib
 ## explicit; go 1.17
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/require
-# golang.org/x/text v0.3.3
-## explicit; go 1.11
+# golang.org/x/text v0.17.0
+## explicit; go 1.18
 golang.org/x/text/unicode/rangetable
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
