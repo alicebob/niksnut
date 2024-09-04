@@ -68,7 +68,7 @@ func duration(t time.Duration) string {
 	if t <= 0 {
 		return ""
 	}
-	// I prefer to show the same unit everywhere, easier to compare.
+	// I prefer to show the same unit everywhere, easier to compare visually.
 	return fmt.Sprintf("%.02fs", t.Seconds())
 	// return t.Truncate(10 * time.Millisecond).String()
 }
