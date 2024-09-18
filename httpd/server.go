@@ -39,7 +39,8 @@ func (s *Server) Mux() *http.ServeMux {
 	m.HandleFunc("POST /build", s.handlerBuild)
 	m.HandleFunc("GET /builds", s.handlerBuilds)
 	m.HandleFunc("GET /stdout", s.handlerStdout)
-	m.HandleFunc("GET /stream", s.handlerStream)
+	m.HandleFunc("GET /stream", s.handlerStream)   // event stream of single build
+	m.HandleFunc("GET /waitfor", s.handlerWaitfor) // event stream of multiple builds
 
 	st, _ := fs.Sub(s.Static, "static")
 	m.Handle("GET /static/", http.StripPrefix("/static/", http.FileServerFS(st)))

@@ -10,8 +10,9 @@ import (
 )
 
 type indexArgs struct {
-	Builds       []niks.Build
 	TodayYearDay int // used to show day headers in the build list
+	Builds       []niks.Build
+	Building     []string // we can ./waitfor these
 }
 
 func (s *Server) handlerIndex(w http.ResponseWriter, r *http.Request) {
@@ -31,6 +32,13 @@ func (s *Server) index(ctx context.Context, args *indexArgs) error {
 		return err
 	}
 	args.Builds = ls
+
+	for _, b := range ls {
+		if s, _ := b.Status(); !s.Done {
+			// we could skip old IDs which hang for whatever reason
+			args.Building = append(args.Building, b.ID)
+		}
+	}
 
 	return nil
 }
