@@ -2,9 +2,8 @@ package httpd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"html/template"
-	"log/slog"
 	"net/http"
 	"time"
 
@@ -16,9 +15,11 @@ type waitforArgs struct {
 }
 
 type WaitMsg struct {
-	BuildID string `json:"buildId"`
-	Done    bool   `json:"done"`
-	Success bool   `json:"success"`
+	BuildID  string `json:"buildId"`
+	ShortRev string `json:"shortRev"`
+	Done     bool   `json:"done"`
+	Success  bool   `json:"success"`
+	Duration string `json:"duration"`
 }
 
 // /waitfor?buildid=123&buildid=456 -> returns a "text/event-stream" document with only the build result
@@ -47,9 +48,8 @@ loop:
 			if !ok {
 				break loop
 			}
-			// manual JSON so we're sure there's no newline
-			fmt.Fprintf(w, `data: {"buildId": "%s", "done": %t, "success": %t}`, template.JSEscapeString(st.BuildID), st.Done, st.Success)
-			fmt.Fprintf(w, "\n\n")
+			bits, _ := json.Marshal(st) // should have no newlines
+			fmt.Fprintf(w, "data: %s\n\n", bits)
 			w.(http.Flusher).Flush()
 		case <-ctx.Done():
 			break loop
@@ -83,9 +83,11 @@ func (s *Server) waitfor(ctx context.Context, r *http.Request, args *waitforArgs
 			for id, b := range builds {
 				if s, _ := b.Status(); s.Done {
 					res <- WaitMsg{
-						BuildID: id,
-						Done:    true,
-						Success: s.Success,
+						BuildID:  id,
+						ShortRev: s.ShortRev,
+						Done:     s.Done,
+						Success:  s.Success,
+						Duration: duration(s.Finish.Sub(s.Start)),
 					}
 					delete(builds, id)
 				}

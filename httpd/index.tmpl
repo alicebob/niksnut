@@ -26,8 +26,8 @@
 		{{end}}
 		{{ $prevDay = $b.Start.YearDay }}
 		<a href="./builds?buildid={{.ID}}" class="buildlink">
-		<div class="build">
-			<div id="status-{{.ID}}">
+		<div class="build" id="build-{{.ID}}">
+			<div>
 			{{if not $b.Done}}
 				{{showstatus "running" "Running"}}
 			{{else if $b.Success}}
@@ -62,20 +62,24 @@
 
 {{with .Building}}
 	<script>
-	// webevent to update the build status. This doesn't reload anything, only updates the CSS class of the little circles.
+	// webevent to update the build status. This doesn't reload anything, or
+	// add new rows, only updates some existing divs.
 	const src = new EventSource("./waitfor?{{range .}}buildid={{.}}&{{end}}");
 	src.onmessage = (event) => {
 		const data = JSON.parse(event.data);
 		if (!data.done) {
 			return
 		}
-		const elemId = "status-" + data.buildId;
+		const elemId = "build-" + data.buildId;
 		const elem = document.getElementById(elemId);
-		if (data.success) {
-			elem.innerHTML = {{showstatus "success" "Success"}};
-		} else {
-			elem.innerHTML = {{showstatus "failed" "Failed"}};
+		if (! elem) {
+			return; // weird
 		}
+		elem.children[0].innerHTML = data.success
+			? {{showstatus "success" "Success"}}
+			: {{showstatus "failed" "Failed"}};
+		elem.children[3].innerHTML = data.shortRev;
+		elem.children[5].innerHTML = data.duration;
 	};
 	src.addEventListener("finished", (event) => {
 		src.close();
