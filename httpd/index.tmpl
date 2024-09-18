@@ -67,18 +67,18 @@
 	const src = new EventSource("./waitfor?{{range .}}buildid={{.}}&{{end}}");
 	src.onmessage = (event) => {
 		const data = JSON.parse(event.data);
-		if (!data.done) {
-			return
-		}
 		const elemId = "build-" + data.buildId;
 		const elem = document.getElementById(elemId);
 		if (! elem) {
 			return; // weird
 		}
+		elem.children[3].innerHTML = data.shortRev;
+		if (!data.done) {
+			return
+		}
 		elem.children[0].innerHTML = data.success
 			? {{showstatus "success" "Success"}}
 			: {{showstatus "failed" "Failed"}};
-		elem.children[3].innerHTML = data.shortRev;
 		elem.children[5].innerHTML = data.duration;
 	};
 	src.addEventListener("finished", (event) => {
