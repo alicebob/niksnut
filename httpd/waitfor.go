@@ -81,14 +81,15 @@ func (s *Server) waitfor(ctx context.Context, r *http.Request, args *waitforArgs
 		defer close(res)
 		for {
 			for id, b := range builds {
-				if s, _ := b.Status(); s.Done {
-					res <- WaitMsg{
-						BuildID:  id,
-						ShortRev: s.ShortRev,
-						Done:     s.Done,
-						Success:  s.Success,
-						Duration: duration(s.Finish.Sub(s.Start)),
-					}
+				s, _ := b.Status()
+				res <- WaitMsg{
+					BuildID:  id,
+					ShortRev: s.ShortRev,
+					Done:     s.Done,
+					Success:  s.Success,
+					Duration: duration(s.Finish.Sub(s.Start)),
+				}
+				if s.Done {
 					delete(builds, id)
 				}
 			}
