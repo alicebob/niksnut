@@ -3,7 +3,7 @@ let
   pkgs = import sources.nixpkgs { };
   gocache = pkgs.callPackage ./gocache.nix { };
 
-  niksnut = pkgs.buildGo123Module {
+  niksnut = pkgs.buildGo125Module {
     name = "niksnut";
     buildInputs = [ gocache ];
     src = pkgs.lib.sourceByRegex ./. [
