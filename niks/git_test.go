@@ -55,7 +55,7 @@ func TestGit(t *testing.T) {
 	})
 
 	t.Run("remote", func(t *testing.T) {
-		require.NoError(t, GitRemoteUpdate(ctx, dest))
+		require.NoError(t, GitFetchAll(ctx, dest))
 	})
 
 	t.Run("revision", func(t *testing.T) {

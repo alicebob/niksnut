@@ -23,7 +23,7 @@ func updateLocal(ctx context.Context, bare, repoURL string) error {
 		return nil
 	}
 
-	return GitRemoteUpdate(ctx, bare)
+	return GitFetchAll(ctx, bare)
 }
 
 // does whatever is needed of: git clone+git fetch+git branch

@@ -57,8 +57,8 @@ func GitCloneBare(ctx context.Context, dest, repoURL string) error {
 	return nil
 }
 
-func GitRemoteUpdate(ctx context.Context, repo string) error {
-	exe := exec.CommandContext(ctx, cmdGit, "remote", "update", "--prune", "--force")
+func GitFetchAll(ctx context.Context, repo string) error {
+	exe := exec.CommandContext(ctx, cmdGit, "fetch", "--all", "--prune", "--force")
 	exe.Dir = repo
 	exe.Env = []string{
 		"GIT_TERMINAL_PROMPT=0",
