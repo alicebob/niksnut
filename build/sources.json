@@ -3,9 +3,9 @@
     "nixpkgs": {
       "type": "Channel",
       "name": "nixos-25.11-small",
-      "url": "https://releases.nixos.org/nixos/25.11-small/nixos-25.11.7009.d577c8cbee80/nixexprs.tar.xz",
-      "hash": "0gf7ahsbj7cw1ddcy1nsmwq5fdkh96n2fnqay0s89n7nj03bdc50"
+      "url": "https://releases.nixos.org/nixos/25.11-small/nixos-25.11.639.e9f8538978f9/nixexprs.tar.xz",
+      "hash": "0yx9m3bzpyir9sqgdxis473lhhqij4a1b21gibc80mds5agd97m5"
     }
   },
-  "version": 5
+  "version": 3
 }
