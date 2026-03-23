@@ -7,7 +7,7 @@ test:
 
 .PHONY: vendor
 vendor:
-	go mod tidy -compat=1.23
+	go mod tidy -compat=1.26
 	go mod vendor
 
 .PHONY: nix
