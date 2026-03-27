@@ -1,0 +1,85 @@
+{{define "title"}}
+bulk deploy
+{{end}}
+{{define "main"}}
+<main>
+
+{{showerror .Error}}
+
+<div class="col col1">
+	{{if .BuildIDs}}
+		<!-- Show build results -->
+		<h2>Bulk Deployment Results</h2>
+		<div>
+			<h3>Builds Started</h3>
+			<div>
+				{{range .BuildIDs}}
+					<a href="./builds?buildid={{.}}" class="buildlink">
+						<div class="build">
+							<div>{{.}}</div>
+						</div>
+					</a>
+				{{end}}
+			</div>
+			<div style="margin-top: 20px;">
+				<a href="./">Back to home</a>
+			</div>
+		</div>
+	{{else if .Selected}}
+		<h2>Bulk Deployment - Select Branch</h2>
+		<div>
+			<p><strong>{{len .Selected}} project(s) selected</strong></p>
+			<form method="POST" action="./bulk">
+				{{range $id, $on := .Selected}}
+					{{if $on}}<input type="hidden" name="project-{{$id}}" value="on">{{end}}
+				{{end}}
+				
+				{{if .Branches}}
+					{{range .Branches}}
+						<label style="display: block; margin: 5px 0;">
+							<input type="radio" name="branch" value="{{.}}" {{if eq $.Branch .}}checked{{end}}/> {{.}}
+						</label>
+					{{end}}
+					<div style="margin-top: 20px;">
+						<button type="submit" name="page" value="deploy">Deploy Selected Projects</button>
+					</div>
+				{{else}}
+					<p>No common branches found across selected projects</p>
+				{{end}}
+			</form>
+		</div>
+	{{else}}
+		<h2>Bulk Deployment - Select Projects</h2>
+		<div>
+			<p>Select one or more projects to deploy in bulk:</p>
+			<form method="POST" action="./bulk">
+				{{$lastCat := ""}}
+				{{range .Projects}}
+					{{if and (ne .Category "") (ne .Category $lastCat)}}
+						<h3>{{.Category}}</h3>
+						{{$lastCat = .Category}}
+					{{end}}
+					<div style="margin: 5px 0;">
+						<label>
+							<input type="checkbox" name="project-{{.ID}}" {{if index $.Selected .ID}}checked{{end}}/> 
+							{{.Name}}
+						</label>
+					</div>
+				{{end}}
+				<div style="margin-top: 20px;">
+					<button type="submit" name="page" value="select">Continue</button>
+				</div>
+			</form>
+		</div>
+	{{end}}
+</div>
+
+<!-- Empty left column -->
+<div class="col col2a">
+</div>
+
+</main>
+{{end}}
+
+
+

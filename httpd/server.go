@@ -37,6 +37,8 @@ func (s *Server) Mux() *http.ServeMux {
 	m.HandleFunc("GET /{$}", s.handlerIndex)
 	m.HandleFunc("GET /build", s.handlerBuild)
 	m.HandleFunc("POST /build", s.handlerBuild)
+	m.HandleFunc("GET /bulk", s.handlerBulk)
+	m.HandleFunc("POST /bulk", s.handlerBulk)
 	m.HandleFunc("GET /builds", s.handlerBuilds)
 	m.HandleFunc("GET /stdout", s.handlerStdout)
 	m.HandleFunc("GET /stream", s.handlerStream)   // event stream of single build
