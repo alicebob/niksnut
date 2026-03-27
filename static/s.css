@@ -116,6 +116,13 @@ pre {
   border-radius: 0px;
 }
 
+/* Bulk deploy separator */
+.bulk-deploy {
+  border-top: 1px solid #e7e7ed;
+  margin-top: 15px;
+  padding-top: 15px;
+}
+
 .build {
   display: flex;
   padding: 5px 5px;
