@@ -2,7 +2,7 @@
 
 pkgs.stdenv.mkDerivation {
   name = "gocache";
-  buildInputs = [ pkgs.go_1_25 ];
+  buildInputs = [ pkgs.go_1_26 ];
   src = pkgs.lib.sourceByRegex ./. [
     "^go.(mod|sum)$"
     "vendor"
