@@ -14,11 +14,7 @@ bulk deploy
 			<h3>Builds Started</h3>
 			<div>
 				{{range .BuildIDs}}
-					<a href="./builds?buildid={{.}}" class="buildlink">
-						<div class="build">
-							<div>{{.}}</div>
-						</div>
-					</a>
+					<a href="./builds?buildid={{.}}" class="buildlink">{{.}}</a><br />
 				{{end}}
 			</div>
 			<div style="margin-top: 20px;">

@@ -67,6 +67,7 @@ func (s *Server) bulk(ctx context.Context, r *http.Request, args *bulkArgs) erro
 				}
 			}
 			args.Branches = computeCommonBranches(args.Projects, args.Selected, branchesByRepo)
+			mainFirst(args.Branches)
 		}
 	}
 
